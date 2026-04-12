@@ -53,7 +53,16 @@ sequential - נוצר עם מספר עולה מהאב אין מגבלות, כל 
 
 ניתן לבצע distributed locks באופן די דומה, כל אחד ירשום ephemeral sequential znode ל znode אחר תחת LOCK והנמוך ביותר מחזיק את המנעול. השחרור הוא במחיקת ה znode ובנוסף אם node קורס המנעול ישתחרר אוטומטית.
 
+אפשרי להשתמש בשומר גן החיות כדי לממש אחסון לקונפיגורציה כאשר כמה תהליכים רוצים להשתמש ולגשת לאותם קבצים ונרצה לערוך אותם ולשמור על עקביות עם כל הסרוויסים שקוראים מהקונפיגורציהץ
+
 5. **Operational Concerns:**  Outline how to deploy an ensemble, handle scaling, manage snapshots and transaction logs, and troubleshoot typical issues (e.g., split‑brain, latency).
+
+דבר ראשון צריך להוריד java JDK כי zookeeper כתוב בשפה הנ"ל. מקנפגים את הגודל של ההיפ כדי למנוע כמות swaps. יוצרים קובץ קונפיגורציה ל zookeeper. יוצרים קובץ בשם myid שמכיל את ה id של המכונה 
+יוצרים קובץ ריק בשם Initialize שמטרתו להודיע שהשרת לא מחזיק שום מידע, כשהוא קיים נוצר דאטא בייס ריק והקובץ נמחק, אם הוא לא קיים סימן שהתיקיית מידע ריקה ולא יהיו לו זכויות הצבעה 
+ואז ניתן להריץ עם פקודת הרצה 
+java -cp zookeeper.jar:lib/*:conf org.apache.zookeeper.server.quorum.QuorumPeerMain zoo.conf
+
+ניתן לעשות scaling באמצעות פקודת reconfig עם add server והפרטים שלו.
 
 ### Kerberos – five guiding questions
 1. **Protocol Flow:**  Walk through the Kerberos authentication flow from initial login (kinit) to obtaining service tickets.  Include AS, TGS, and ticket caches.
