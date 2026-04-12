@@ -26,9 +26,33 @@ Estimated Duration: 1 Day
 
 ### Zookeeper – five guiding questions
 1. **Architecture & Data Model:**  Describe a Zookeeper ensemble, the role of the leader and followers, the znode hierarchy, and how znodes store data and metadata.
+
+אנסמבל זה אוסף של שרתי זוקיפר בתוך כל אנסמבל כזה יש leader אחד וכל השאר הם followers. 
+תפקיד ה followers  הוא להחזיק את המידע בפועל ולאפשר קריאות מהירות ללא צורך בסנכרון.
+לעומת זאת בשביל כתיבות, שיש בהן צורך בתזמון, בשביל זה יש את ה leader שהוא מנהל את זה ומונע מקרים של corruption.
+הznodes שומרים את המידע בצורה שמזכירה מערכת קבצים כאשר כל תיקייה היא גם קובץ ששומר מידע.
+המידע נשמר גם לוקאלית על הזיכרון וגם נכתב לדיסק כלוגים.
+
 2. **Consistency & Watches:**  How does Zookeeper guarantee sequential consistency?  Explain watches, one‑time triggers, and how clients use them for cache invalidation.
+
+זוקיפר משתמש בפרוטוקול ZAB כלומר הפעולה נקלטת רק אם רוב השרתים הסכימו וקיבלו אותה בצורה אטומית ולכן מובטח עקביות בסדר של הפעולות בגלל האטומיות כלומר ברגע שהפעולה תתחיל היא תסתיים לפני שהפעולה הבאה תתחיל
+watch זה כמו התראה כאשר node משתנה באיזשהי דרך ואז ניתן לטרגר פעולות בהתאם
+כאשר עקביות היא קריטית צריך לעשות invalidate cache מיד כאשר מקור המידע משתנה ואז ניתן להשתמש ב trigger כדי לעשות את זה
+
 3. **Sessions & Failure Handling:**  What is a Zookeeper session, how are heartbeats maintained, and what happens when the session expires?  Discuss how ephemeral and sequential nodes relate to this.
+
+session - זה חיבור של לקוח לאנסמבל של זוקיפר
+כדי לשמור על חיבור פעיל הלקוח צריך לשלוח heartbeat לשרת ואם לא נשלח לאורך זמן החיבור מתנתק
+יש כמה סוגים של znodes:
+ephemeral - קיים כל עוד החיבור פעיל וכאשר הוא מתנתק הוא נמחק אי אפשר ליצור בנים
+sequential - נוצר עם מספר עולה מהאב אין מגבלות, כל znode יכול להיות sequential.
+
 4. **Common Patterns:**  Explain how leader election, distributed locks, and configuration storage are implemented on top of Zookeeper primitives.
+
+ניתן לממש leader election באופן הבא: יוצרים znode עם path "ELECTION". כל Node רושם את עצמו לבן של ה znode עם מספר sequence מי שהכי נמוך נבחר להיות ה leader
+
+ניתן לבצע distributed locks באופן די דומה, כל אחד ירשום ephemeral sequential znode ל znode אחר תחת LOCK והנמוך ביותר מחזיק את המנעול. השחרור הוא במחיקת ה znode ובנוסף אם node קורס המנעול ישתחרר אוטומטית.
+
 5. **Operational Concerns:**  Outline how to deploy an ensemble, handle scaling, manage snapshots and transaction logs, and troubleshoot typical issues (e.g., split‑brain, latency).
 
 ### Kerberos – five guiding questions
