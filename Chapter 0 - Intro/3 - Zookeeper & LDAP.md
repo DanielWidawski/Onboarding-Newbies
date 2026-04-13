@@ -63,6 +63,14 @@ sequential - נוצר עם מספר עולה מהאב אין מגבלות, כל 
 java -cp zookeeper.jar:lib/*:conf org.apache.zookeeper.server.quorum.QuorumPeerMain zoo.conf
 
 ניתן לעשות scaling באמצעות פקודת reconfig עם add server והפרטים שלו.
+או אם זה פרוס בקוברנטיס אז ניתן פשוט להעלות את המספר של הפודים ב zookeeperStatefulSet 
+
+zookeeper יוצר snapshots של המערכת כאשר הגודל של הקובץ לוגים של הטרנזקציות גדל מדי ואז נוצר קובץ חדש. כאשר מתבצע snapshot עדיין snapshot 
+המידע נכתב למערכת קבצים בדרך כלל חיצונית אבל עדיין יכולים להתבצע שינויים במקביל, שירשמו לקובץ לוגים אבל לא ל snapshot ולכן הסיומת של כל snapshot היא ה id של הטרנזקציה האחרונה שבוצעה, וניתן לשחזר את השאר דרך הקובץ לוגים.
+
+zookeeper פותר את בעיית הsplit brain על ידי בחירת leader על ידי רוב זאת עוד סיבה שלפיה בוחרים מספר אי זוגי של שרתים, כך תמיד יש רוב בnetwork partition.
+
+zookeeper מתמודד עם latency של nodes מאותה סיבה של quorum - לא צריך שכל ה nodes יסיימו לכתוב, מספיק רק רוב. עוד משהו שיכול לגרום לlatency הוא ה garbage collector ולכן כדאי לבדוק קונפיגורציות שונות שלו או להגדיל את ה heap.
 
 ### Kerberos – five guiding questions
 1. **Protocol Flow:**  Walk through the Kerberos authentication flow from initial login (kinit) to obtaining service tickets.  Include AS, TGS, and ticket caches.
