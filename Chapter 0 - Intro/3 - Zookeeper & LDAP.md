@@ -74,9 +74,53 @@ zookeeper מתמודד עם latency של nodes מאותה סיבה של quorum -
 
 ### Kerberos – five guiding questions
 1. **Protocol Flow:**  Walk through the Kerberos authentication flow from initial login (kinit) to obtaining service tickets.  Include AS, TGS, and ticket caches.
+
+kerberos זה פרוטוקול אוטנטיקציה בין של שרתים ובין  של לקוחות על הרשת שלא שולח מידע כמו סיסמאות על גבי הרשת ולכן בטוח מפני ניסיונות התחזות.
+
+החוזק העיקרי של kerberos הוא ב single sign on כלומר מזדהים פעם אחת ויש גישה לכל השירותים הרשומים.
+
+
+תחילה מבקשים מה KDC כרטיס TGT, זאת באמצעות פקודת kinit, מקבלים בנוסף גם session ticket.
+בעצם הTGT שקיבלנו הוא כמו certificate שמאשר אותנו.
+כעת, צריך לבקש ST זה בעצם כרטיס שמבקש גישה לשירות המבוקש, שולחים ל KDC את הפרטים של השרת המבוקש ביחד עם ה TGT והפרטים של הלקוח (מוצפנים באמצעות הST) את כל זה מצפינים עם המפתח של הלקוח. ה KDC מאמת ושולח בחזרה ST מוצפן עם המפתח של השירות.
+ולבסוף פונים לשירות עם ה ST והפרטים של הלקוח כאשר הפרטים מוצפנים באמצעות הsession ticket והשירות מאמת. (בתוך הST מופיע גם הsession ticket).
+
 2. **Key Concepts:**  Define principals, realms, KDC components, tickets (TGT vs service ticket), and how encryption keys are derived and used.
+
+principals - צד שאותו צריך לאמת (אפשר לבקש לאמת גם את השרת ולא רק את הלקוח).
+
+realms - רשת לוגית בדומה לדומיין שמכילה את כל השירותים והלקוחות שרשומים בה.
+
+הKDC מורכב מכמה רכיבים:
+
+Authentication Server: זאת הישות שמאמתת את המשתמשים בפועל מול המאגר הרשום ומחלקת את ה TGT אם אכן המשתמש אושר.
+
+TGS - Ticket-Granting Service - זאת הישות שמשלימה את ה AS על ידי אימות לשירות ספציפי, לאחר שיש TGT ניתן לשלוח אותו עם בקשה לשירות ספציפי, וה TGS מאמת את ה TGT ואם הוא נכון, שולח service ticket.
+
+די מפורט למעלה ההבדל בין TGT ל service ticket
+
+מפתחות ההצפנה הם פרטיים ולכן צריכים להיות רשומים מראש ב KDC, השימוש בהם מפורט לעיל.
+
+
+
 3. **Security Properties:**  Why is Kerberos considered secure?  Discuss mutual authentication, replay protection, time sensitivity, and the role of the ticket lifetime.
+
+kerberos נחשב בטוח מכמה סיבות.
+אין מפתחות שעוברים בין הצדדים אלא כל האימותים עוברים דרך ה KDC שהוא אמור להיות צד שלישי אמין.
+יש mutual authentication כלומר המשתמש יכול לבקש מהשרת לאמת את עצמו ולא רק השרת מהמשתמש.
+
+אמנם הודעה יכולה להיקלט אצל גורם עוין ולהשלח שוב ועל ידי זה להשיג גישה. במקרה שלנו, תוקף יכול להשיג את התעבורה בין משתמש ל AS ולנסות להשיג את ה TGT ולאחר מכן להתחזות למשתמש.
+הפתרון של kerberos הוא להוסיף להודעות timestamp או לא לאשר הודעות שהגיעו כבר. ויש הצפנה לפי ה session key שאמור לספק עוד שכבת הגנה, שכן אף אחד מלבד הצדדים המתקשרים לא אמור לדעת אותו
+מהסיבה הזאת חשוב מאוד שהשעונים של הלקוחות ה AS וה TGS יהיו מתוזמנים.
+ה ticket lifetime הוא בעצם התוקף של הכרטיס.
+יש שני סוגים:
+ticket lifetime - הזמן שיש לכרטיס הנוכחי
+renewable lifetime - הזמן שאפשר לחדש כרטיס לפני שצריך להוציא אחד חדש לגמרי.
+
 4. **Administration & Tools:**  What are common Kerberos administration tasks?  Describe commands like `kadmin`, `kinit`, `klist`, `kdestroy`, and how to add principals or change passwords.
+
+
+
 5. **Integration & Troubleshooting:**  How do services (Hadoop, HTTP, SSH) integrate with Kerberos?  What are typical issues (clock skew, wrong realm, keytab problems) and how do you diagnose them?
 
 ### LDAP – five guiding questions
