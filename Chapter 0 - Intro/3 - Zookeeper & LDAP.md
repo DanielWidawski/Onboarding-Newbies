@@ -119,9 +119,25 @@ renewable lifetime - הזמן שאפשר לחדש כרטיס לפני שצריך
 
 4. **Administration & Tools:**  What are common Kerberos administration tasks?  Describe commands like `kadmin`, `kinit`, `klist`, `kdestroy`, and how to add principals or change passwords.
 
-
+לשנות להוסיף או למחוק משתמשים לתחזק פוליסות של המערכת וקבצים.
+kadmin היא פקודה איתה ניתן לנהל את הדאטא בייס של kerberos ובפרט לבצע את כל הפעולות שרשמתי למעלה.
+למשל כדי להוסיף משתמש, אחרי kadmin נצטרך להכניס עוד פקודה, נשתמש בפקודה add_principle.
+כדי לשנות סיסמא ניתן  להשתמש בתת פקודה change_password זה דרך האדמין, אבל ברור שגם המשתמש עצמו יכול לשנות את הסיסמה שלו באמצעות kpasswd.
+על kinit רשמתי מקודם אבל הפקודה בגדול מבקשת או מחדשת TGT.
+klist מציג רשימה של ה kerberos tickets שנמצאים בcache כרגע.
+kdestroy כדי למחוק את האישורים של משתמש.
 
 5. **Integration & Troubleshooting:**  How do services (Hadoop, HTTP, SSH) integrate with Kerberos?  What are typical issues (clock skew, wrong realm, keytab problems) and how do you diagnose them?
+
+hadoop מבצע את האימות של המשתמשים והשרתים באמצעות kerberos בשביל זה, לכל משתמש ושירות צריך להיות principal מתאים ב kerberos.
+באופן דומה ניתן להשתמש ב kerberos כדי לאמת לקוחות עבור שירות ssh
+ממש בצורה דומה ניתן לאמת לקוחות שניגשים לשירות בפרוטוקול http.
+
+clock skew זאת בעיה שקורית כאשר השעונים לא מסונכרנים לפי הרווח שהוגדר. kerberos מקפיץ שגיאה כשזה קורה.
+כנ"ל לגבי בעיות של wrong realm, פשוט נקבל שגיאה אינדיקטיבית.
+מקבלים שגיאה אינדיקטיבית גם עם keytab.
+באופן כללי לא ממש הבנתי את המטרה של השאלה הזאת.
+
 
 ### LDAP – five guiding questions
 1. **Directory Structure:**  Explain how LDAP organizes information in a hierarchical tree (DN, RDN), common object classes, and attributes for users and services.
