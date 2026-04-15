@@ -141,7 +141,33 @@ clock skew זאת בעיה שקורית כאשר השעונים לא מסונכ�
 
 ### LDAP – five guiding questions
 1. **Directory Structure:**  Explain how LDAP organizes information in a hierarchical tree (DN, RDN), common object classes, and attributes for users and services.
+
+לכל תיקיית ldap יש מבנה דמוי עץ שבדרך כלל מייצג מבנה אירגוני קונקרטי, ומכיל אחד או יותר ערכים. 
+ldap בעצמו מגדיר שדות סטנדרטיים שונים. 
+ה DN - distinguished name הוא בסך הכל שם ייחודי שמייצג את הרשומה הנוכחית בכל תיקיית ה ldap הגלובלית.
+בדרך כלל זהו שרשור של ה path עד המקום הנוכחי.
+ה RDN  הוא השם של הרשומה רלטיבית, די דומה למבנה תיקיות רגיל עם כתובת רלטיבית.
+
+לכל אובייקט ב ldap יש לפחות object class אחד שקשור אליו, והוא בעצם קובע את התכונות של האובייקט, ובפרט אילו שדות חייבים להיות בו ואילו שדות יכולים להיות בו.
+יש כמה סוגים של object classes, הנפוצים ביניהם הם כנראה:
+structural - אלו שמגדירים בפועל את האובייקט הם יכולים לרשת מאבסטרקטיות אבל לא ממחלקות עזר.
+abstract - מחלקות שיכולות להגדיר שדות דרושים או אופציונלים אבל לא אמורים להשתמש בהם, אלה להרחיב אותם והמחלקה top הראשית היא כזו.
+auxilary - זה פשוט עוד סוג של מחלקה שנועד להרחיב מחלקה קיימת כיוון שחייב להיות רק structural אחד.
+
+לא הבנתי אם אני צריך לרשום על ערכים ספציפים אבל יש object classes קיימים שמגדירים כל מיני דברים למשל person, organizationalPerson, ePerson.
+כנ"ל לגבי services, יש למשל את applicationProcess.
+
 2. **Protocols & Operations:**  Describe basic LDAP operations – bind, search, modify, add, delete – and the difference between simple and SASL binds.
+
+add - מכניס רשומה חדשה לתיקייה
+delete - מסיר רשומה (עלה)
+modify - משנה ערכים ברשומה קיימת
+bind - מאמת לקוחות כלפי השרת שמכיל את התיקיות.
+search - מחפש רשומות ספציפיות בתיקייה
+
+כשמשתמשים ב bind פשוט, אז השם משתמש והסיסמא נשלחים ברשת והשרת מאמת אותם מול המסד נתונים שלו.
+ב SASL bind, משתמשים בתצורה של תקשורת בטוחה, למשל TLS או kerberos.
+
 3. **Schema & Extensibility:**  What is an LDAP schema?  How do object classes, attribute types, and syntax rules define what data can be stored?  Mention extending schemas.
 4. **Authentication & Authorization:**  How is LDAP used for authentication and authorization?  Cover binding with credentials, password policies, and group lookups.
 5. **Deployment & Security:**  Outline how to install/configure an LDAP server (e.g., OpenLDAP), secure it with TLS, replicate data, and troubleshoot common errors (referral loops, access controls).
