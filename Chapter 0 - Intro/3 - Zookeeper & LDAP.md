@@ -182,9 +182,42 @@ search - מחפש רשומות ספציפיות בתיקייה
 
 דיברנו קצת על bind וSASL אבל בגדול, המשתמש שולח את הפרטים, השרת מאמת את הפרטים מול המידע ששמור בתיקיות ומאפשר גישה בהתאם להרשאות של המשתמש במידה והפרטים נכונים. 
 ניתן להגדיר פוליסות על הסיסמאות למשל כמה תווים יהיו, כמה מספרים וכו'. השרת מאמת אותם בפקודות add ו modify.
-group lookup - מחזיר מידע על ה group עבור משתמש ששמור בתיקיות ldap חיצוניות
+group lookup - מחזיר מידע על שייכות ל group עבור משתמש ספציפי.
+זה חובה אם רוצים להשתמש ב ldap כדי להגדיר groups. 
 
 5. **Deployment & Security:**  Outline how to install/configure an LDAP server (e.g., OpenLDAP), secure it with TLS, replicate data, and troubleshoot common errors (referral loops, access controls).
+
+דבר ראשון מורידים OpenLDAP.
+מפעילים את ה service של ldap : sudo systemctl start slapd.service
+לפעמים צריך לאפשר גישה לחיבורים חיצוניים מה firewall.
+פותחים ועורכים את הקובץ קונפיגורציה שהוא /etc/ldap/ldap.conf
+מורידים מהערה את השורות הבאות 
+BASE     dc=example,dc=com
+URI      ldap://ldap.example.com ldap://ldap-master.example.com:666
+ועורכים אותן.
+אם רוצים לאפשר פעולות אדמיניסטרציה, צריך לקנפג את ה root user.
+
+כדי להשתמש ב TLS צריך certificate.
+לאחר שיש לנו certificate חתום בין את על ידי עצמנו ובין אם על ידי ca, צריך לקנפג את ה ldap להשתמש ב 
+TLS .
+פותחים את הקובץ LDIF המבוקש (בדרך כלל cn=config) ועורכים אותו.
+tls_certfile /etc/ssl/certs/ldap.crt tls_keyfile /etc/ssl/private/ldap.key
+כעת מייבאים את הקובץ המקונפג
+ldapadd -Y EXTERNAL -H ldapi:/// -f
+ומריצים מחדש את ה service.
+
+רפליקציות קורות דרך מנגנון syncrepl.
+יש שתי דרכים עיקריות לרפליקציות:
+provider-consumer - שינויים הולכים ל provider, ה consumer מושך אותם.
+multi-master - כתיבות הולכות לכל השרתים והם מסתנכרנים ביניהם
+נדגים provider-consumer.
+צריך לאפשר את ה syncprov על ה provider.
+צריך ליצור משתמש שמטרתו לרפלק את המידע, ה consumer יעשה bind אליו וישתמש בו.
+מאפשרים ליוזר הזה גישת קריאה לכל המידע כולל סיסמאות
+בשרת הרפליקציה, צריך להשתמש באותו domain ראשי ובאותה סיסמה לאדמין.
+מוסיפים קונפיגורציה ל syncrepl.
+
+
 
 
 
