@@ -169,10 +169,28 @@ search - מחפש רשומות ספציפיות בתיקייה
 ב SASL bind, משתמשים בתצורה של תקשורת בטוחה, למשל TLS או kerberos.
 
 3. **Schema & Extensibility:**  What is an LDAP schema?  How do object classes, attribute types, and syntax rules define what data can be stored?  Mention extending schemas.
+
+בדומה למטרה של סכימות במסדי נתונים רלציונים, גם כאן הסכימה באה לתאר את המבנה של המידע ומגבלות.
+מכיוון שהתצורה של המידע שונה באופן מהותי בין מסדי נתונים רלציונים ל ldap, גם התיאור של הסכימה עצמה שונה באופן מהותי.
+
+בעצם כל object class חייב לממש סכמה, ובתוך כל סכימה מוגדרים attributes.
+לכל attribute יש type והוא מגדיר איזה מידע יכול להשמר בכל שדה כזה.
+לכל attribute יש id ייחודי וניתן להגדיר לו גם syntax rules, למשל case insensitive.
+ניתן להרחיב סכימות כדי להוסיף עוד פונקציונליות.
+
 4. **Authentication & Authorization:**  How is LDAP used for authentication and authorization?  Cover binding with credentials, password policies, and group lookups.
+
+דיברנו קצת על bind וSASL אבל בגדול, המשתמש שולח את הפרטים, השרת מאמת את הפרטים מול המידע ששמור בתיקיות ומאפשר גישה בהתאם להרשאות של המשתמש במידה והפרטים נכונים. 
+ניתן להגדיר פוליסות על הסיסמאות למשל כמה תווים יהיו, כמה מספרים וכו'. השרת מאמת אותם בפקודות add ו modify.
+group lookup - מחזיר מידע על ה group עבור משתמש ששמור בתיקיות ldap חיצוניות
+
 5. **Deployment & Security:**  Outline how to install/configure an LDAP server (e.g., OpenLDAP), secure it with TLS, replicate data, and troubleshoot common errors (referral loops, access controls).
 
+
+
+
 ### 🔄 Alternatives
+
 Assignment: You are required to research and write a comparative analysis between Zookeeper, Kerberos & LDAP and an industry alternative.
 - Deliverable: A written summary (minimum 1 or 2 sentences).
 - Focus: Compare performance, architecture, and specific "pain points" this tool solves compared to legacy systems or competitors.
