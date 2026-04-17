@@ -29,7 +29,23 @@ Think through the following questions; by answering them you’ll touch every ma
 
 1. **Hierarchy, Metadata & Lookup:**  Describe how a file system organizes files in a namespace, how it separates metadata from content (e.g. using inodes), and explain the steps taken to resolve a path like `/home/user/docs/report.txt` to the underlying data.
 
+רוב מערכות הקבצים מארגנות את הקבצים בצורה היררכית - תיקיות.
+כל תיקייה או קובץ (תיקייה היא גם קובץ...) יושב תחת תיקייה אחרת עד ה root directory.
+מכיוון שתיקייה היא גם קובץ, אמנם קובץ מיוחד אבל עדיין קובץ, היא מכילה מיפוי של שמות של קבצים וה Inodes שלהם.
+כלומר כשניגשים לקובץ, בעצם ניגשים לתיקייה שהקובץ נמצא בו ומשם ל inode שלו.
+
+כשמדברים על כתובת אבסולטית מתחילים מה root directory.
+לאחר מכן מתבצעת טוקניזציה לפי '/' ומתבצע חיפוש איטרטיבי.
+אתעלם באלגנטיות ממקרים כמו "." או ".."
+מחפשים את השם בתיקייה כדי למצוא את ה inode וממשיכים איטרטיבית.
+שוב אתעלם באלגנטיות ממקרים בהם מדובר ב symlink או במקרים בהם אחת התיקיות בדרך היא mount
+למשל במקרה המבוקש מתחילים ב root ומחפשים home.
+אם זאת אכן תיקייה, ממשיך לחפש בה עד שנגיע לסוף ונחזיר את ה indoe של report.txt.
+
 2. **Storage & Allocation:**  Explain block allocation strategies (contiguous, linked, indexed, extent‑based), discuss what internal and external fragmentation are, and outline how performance is impacted by file size and access patterns (small vs. large files, sequential vs. random).
+
+
+
 
 3. **Directories, Indexing & Permissions:**  Compare different directory indexing methods (linear lists, hash tables, B‑trees) and why efficient lookup matters. Then describe common permission models such as UNIX mode bits and ACLs, and how access control integrates with directory lookup.
 
