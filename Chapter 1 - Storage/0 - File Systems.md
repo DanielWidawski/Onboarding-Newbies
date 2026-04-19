@@ -44,7 +44,25 @@ Think through the following questions; by answering them you’ll touch every ma
 
 2. **Storage & Allocation:**  Explain block allocation strategies (contiguous, linked, indexed, extent‑based), discuss what internal and external fragmentation are, and outline how performance is impacted by file size and access patterns (small vs. large files, sequential vs. random).
 
+יש כמה סוגי אסטרטגיות עיקריות לגבי איך שומרים קבצים על הדיסק. כל דיסק מחולק לבלוקים והאסטרטגיות האלה קובעות איך הקובץ נשמר על הבלוקים.
 
+לפני האסטרטגיות, אסביר על פרגמנטציות:
+פרגמנטציה חיצונית - יש מקום על הדיסק כדי למלא בקשה כלשהי, אבל הוא מפוזר בין המון חלקים קטנים ואין איך לנצל את כולם ביחד.
+פרגמנטציה פנימית - אם הוקצה זיכרון אבל אין שימוש בכולו, למשל אם הוקצה בלוק שלם לקובץ אבל הוא משתמש רק בחצי ממנו.
+
+contiguous - לפי האסטרטגיה הזאת, לכל קובץ מוקצים בלוקים רציפים על הדיסק בהתאם לגודל של הקובץ ולכן צריך לדעת את הגודל של הקובץ מראש.
+היתרונות הם שהשיטה הזאת מאוד מהירה כי המידע נשמר בצורה רציפה ואין צורך בקפיצות וחיפושים, ויש גישה ישירה לכל בלוק של הקובץ.
+החסרונות הם פרגמנטציה חיצונית ופנימית. וקשה להגדיל קובץ.
+
+linked - כל בלוק שומר מצביע לבלוק הבא.
+היתרון או החיסרון הוא שאין צורך ברציפות ומכאן אין בעיה להגדיל קובץ ואין בעיה של פרגמנטציה חיצונית. מצד שני, צריך חיפוש סדרתי כדי להגיע לבלוק ספציפי ולכן השיטה יותר איטית.
+
+indexed - לכל קובץ יש בלוק אינדקסים ששומר את האינדקסים של כל הבלוקים שמוקצים לקובץ.
+היתרון הוא שאין פרגמנטציה חיצונית ויש גישה (כמעט) ישירה לכל הבלוקים שמוקצים לקובץ ולכן מאפשר גישה מהירה אליהם.
+החיסרונות הם שיש יותר overhead של פוינטרים מאשר ב linked allocation. וכאשר יש קבצים קטנים, צריך לשמור בלוק שלם בשביל כמות קטנה של פוינטרים לעומת linked ששומרים בה פוינטר לכל בלוק וזהו.
+
+extent-based - זאת שיטה חדשה יחסית שרוצה לשלב את היתרונות של contiguous ביחד עם הגמישות של שאר השיטות.
+בעצם במקום להקצות בלוקים אחד אחד, מקצים בלוקים בגודל של ה extent . זה נותן לקבצים קצת יותר מרחב גדילה מבלי לגרום לפרמנטציה חיצונית. עדיין יש סיכוי לפרגמנטציה פנימית אם מדובר בקבצים קטנים או שלא מתחלק טוב ביחס לגודל של ה extent. השיטה הזאת היא בעצם ה"אמצע" של השיטות האחרות והיא מאוד טובה בהתמודדות עם קבצים גדולים. 
 
 
 3. **Directories, Indexing & Permissions:**  Compare different directory indexing methods (linear lists, hash tables, B‑trees) and why efficient lookup matters. Then describe common permission models such as UNIX mode bits and ACLs, and how access control integrates with directory lookup.
