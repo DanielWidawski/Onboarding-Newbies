@@ -67,6 +67,27 @@ extent-based - זאת שיטה חדשה יחסית שרוצה לשלב את הי
 
 3. **Directories, Indexing & Permissions:**  Compare different directory indexing methods (linear lists, hash tables, B‑trees) and why efficient lookup matters. Then describe common permission models such as UNIX mode bits and ACLs, and how access control integrates with directory lookup.
 
+כל המטרה של אינדקסים היא בשביל לייעל את החיפושים. חיפוש לא יעיל יכול לעלות בזמן יקר בסדרי גודל ולגרום פוטנציאלית לגישות מיותרות לדיסק ובכך להאט את המערכת.
+
+linear lists - זה בסך הכל קובץ שמכיל רצף של key value ממוינים לפי ה key. היתרונות הם גישה נוחה ויש random access וחיפוש יעיל. החסרונות הם עידכונים לא יעילים כי זה הכנסה לסוג של מערך ממוין ואז צרית להזיז הכל.
+
+hash tables - שימוש בפונקציות האש בשביל לאנדקס. יתרונות חיפוש מאוד מהיר עבור שוויונים - ערך ספציפי.
+חסרון משמעותי הוא שאין אפשרות לשאילתות range כמו ב B-trees. ובאופן כללי זה פתרון מאוד טוב למקרה הספציפי הזה.
+
+B-trees - המידע נשמר במבנה נתונים של B-tree. לא ארחיב עליו יותר מידי אבל היתרונות שלו הם חיפוש\הכנסה\מחיקה כמו עץ מאוזן כלומר O(log(n)) כי הוא תמיד נשאר מאוזן, וכיוון שהוא שומר על ערכים קרובים, קרוב יחסית בניגוד להאש ואפשר להשיג איתם מינימום אחוז של node שיהיה מלא, כלומר לחסוך מקום ולאפטם על כמות בלוקים שמביאים מהדיסק.
+
+בUNIX יש 3 סוגים של קבוצות ו3 סוגים של הרשאות.
+הקבוצות הן user, group, everyone והסוגים הם read, write, execute.
+כל קבוצה מקבלת 3 ביטים שמייצגים את ההרשאות שלה למשל 110 אומר הרשאות קריאה וכתיבה אבל ללא הרצה.
+בפועל זה נראה משהו כזה -rwxr-xr-x כאשר התווים מייצגים הרשאות. משנים הרשאות באמצעות פקודת chmod.
+
+ACL - Access Control Lists - בעצם מאפשרים לנו לתת הרשאות יותר ספציפיות למשל אם נרצה ש group מסוים יוכל לקרוא רק משהו ספציפי ששייך ל group אחר אבל לא הכל. בעצם ACL מאפשר לנו לתת את ההרשאות האלו מבלי לשנות את הרשאות הבסיס
+משנים זאת עם פקודת setfacl
+
+בעצם כשיהיה lookup נצטרך לקחת בחשבון את ההרשאות של היוזר ולראות האם הוא באמת יכול לחפש בתיקייה המבוקשת, כלומר לקרוא אותה.
+
+
+
 4. **Consistency, Journaling & Caching:**  Why do file systems employ journaling or copy‑on‑write logs? What problems do these techniques address, and how do caching and write buffering interact with crash recovery and power‑failure scenarios?
 
 5. **Performance Trade‑offs & Distributed Extensions:**  Discuss the key trade‑offs between throughput, latency, and reliability in file systems. Finally, briefly explain how additional concepts like replication, failover, and namespace servers extend these ideas in distributed systems (HDFS, Ceph) without re‑inventing the core principles.
