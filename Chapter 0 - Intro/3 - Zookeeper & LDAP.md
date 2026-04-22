@@ -41,6 +41,8 @@ watch זה כמו התראה כאשר node משתנה באיזשהי דרך וא
 
 3. **Sessions & Failure Handling:**  What is a Zookeeper session, how are heartbeats maintained, and what happens when the session expires?  Discuss how ephemeral and sequential nodes relate to this.
 
+כל פעולה של לקוח מול אנסמבל של זוקיפר, חייב להתבצע דרך session.
+
 session - זה חיבור של לקוח לאנסמבל של זוקיפר
 כדי לשמור על חיבור פעיל הלקוח צריך לשלוח heartbeat לשרת ואם לא נשלח לאורך זמן החיבור מתנתק
 יש כמה סוגים של znodes:
@@ -53,7 +55,8 @@ sequential - נוצר עם מספר עולה מהאב אין מגבלות, כל 
 
 ניתן לבצע distributed locks באופן די דומה, כל אחד ירשום ephemeral sequential znode ל znode אחר תחת LOCK והנמוך ביותר מחזיק את המנעול. השחרור הוא במחיקת ה znode ובנוסף אם node קורס המנעול ישתחרר אוטומטית.
 
-אפשרי להשתמש בשומר גן החיות כדי לממש אחסון לקונפיגורציה כאשר כמה תהליכים רוצים להשתמש ולגשת לאותם קבצים ונרצה לערוך אותם ולשמור על עקביות עם כל הסרוויסים שקוראים מהקונפיגורציהץ
+אפשרי להשתמש בשומר גן החיות כדי לממש אחסון לקונפיגורציה כאשר כמה תהליכים רוצים להשתמש ולגשת לאותם קבצים ונרצה לערוך אותם ולשמור על עקביות עם כל הסרוויסים שקוראים מהקונפיגורציה
+או שמירה על נתיבים שעלולים להשתנות במערכת.
 
 5. **Operational Concerns:**  Outline how to deploy an ensemble, handle scaling, manage snapshots and transaction logs, and troubleshoot typical issues (e.g., split‑brain, latency).
 
