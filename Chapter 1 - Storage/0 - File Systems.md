@@ -90,7 +90,26 @@ ACL - Access Control Lists - בעצם מאפשרים לנו לתת הרשאות 
 
 4. **Consistency, Journaling & Caching:**  Why do file systems employ journaling or copy‑on‑write logs? What problems do these techniques address, and how do caching and write buffering interact with crash recovery and power‑failure scenarios?
 
+מערכות קבצים משתמשות בזה כדי לשמור על נכונות של המערכת, לפני שמשהו נכתב לקובץ או מתבצעת איזהשהי פעולה במערכת הקבצים, הפעולה נרשמת ב journal שהוא על הדיסק, ורק אחרי שהכל נרשם ל journal כמו שצריך, השינויים קורים בפועל במערכת.
+וכך במקרה שהמערכת קורסת באמצע ניתן להשתמש ב journal בשביל לשחזר את הפעולה.
+
+החיסרון העיקרי ב journaling הוא כתיבה כפולה לדיסק, ולכן משתמשים בזה רק בעיקר בשביל המטא דאטא, אחרת האוברהד יכול להכביד מדי על המערכת. ולכן יכולות להיות שגיאות וחוסר עקביות במידע עצמו, אבל הוא לא יפגע בשאר המערכת.
+
+ב copy-on-write logs, הרעיון הכללי הוא שכל עוד לא יתבצע שינוי במידע, ניתן לספק פוינטרים למידע המקורי, ובמידה ויש שינוי יוצרים העתק של המידע ומפנים אליו. יתרון מהותי של copy-on-write הוא היכולת לקחת snapshots. 
+בהקשר של מערכות קבצים, מידע או פעולה שקורית לא מתבצעת נשמרת ישירות על המערכת, אלא נרשמת במקום פנוי בדיסק ורק לאחר שהמידע הצליח להשמר, מעדכנים את המטא דאטא. העובדה שהמידע הישן לא נמחק מאפשר לנו לקחת snapshots.
+חסרון הוא שהעתקות כאלה של המידע יכולות לגרום לפרגמנטציה.
+
 5. **Performance Trade‑offs & Distributed Extensions:**  Discuss the key trade‑offs between throughput, latency, and reliability in file systems. Finally, briefly explain how additional concepts like replication, failover, and namespace servers extend these ideas in distributed systems (HDFS, Ceph) without re‑inventing the core principles.
+
+lataency - זה הדיליי בין בקשה לתשובה
+throughput - מספר הבקשות פר יחידת זמן שהמערכת יכולה להתמודד איתה
+reliability - כמה המערכת שומרת על מידע עקבי, רלוונטי בעיקר במקרי קצה.
+יש tradeoff בסיסי בין המושגים האלה, לאו דווקא רק בהקשר של מערכות קבצים, הדוגמה הפשוטה היא מערכות batch שיש להם throughput גבוה על חשבון latency גבוה.
+או במקרה ההפוך, מערכות שהן יותר בזמן אמת מתעדפות latency נמוך על חשבון throughput גבוה
+באופן דומה, בשביל מערכת אמינה ועקבית לפעמים צריך להוסיף רכיבים שפוגעים ב latency, למשל journaling.
+
+
+
 
 ### Real-World Context
 Rather than focusing on one technology, think about how these ideas show up in common operating systems (ext4, NTFS, APFS), networked storage (NFS, SMB), and cloud offerings (S3, Azure Blob). Your task is to recognize the underlying principles across implementations.
