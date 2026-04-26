@@ -1,51 +1,57 @@
 # Hadoop Distributed File System (HDFS) :elephant:
 
 ## Overview
+
 This session focuses on the core concepts of HDFS, the distributed storage layer of the Hadoop ecosystem. Understanding its architecture will help you appreciate how big data clusters store and manage massive datasets across many machines.
 
 **Study the key components, design decisions, and how they work together to provide fault-tolerant, scalable storage.**
 
 ## Goals
+
 - Learn the architecture and roles of HDFS components (NameNode, DataNode, etc.).
 - Understand how HDFS handles storage, replication, and availability.
 - Practice planning a self-study day and managing your time.
 
 :warning: **Note:**
+
 - This is a self-study day; independence and time management matter.
 - Focus on grasping the full picture of each concept; if you can’t explain it, you haven’t learned it.
 - When in doubt, consult your mentor about what to study.
 
 ### ⏳ Timeline
+
 Estimated Duration: 3 Days
+
 - Day 1-3: Learn the concepts of HDFS; spent time on what is it? on fault tolernce, on failover process and on how reads and writes are being done?
-    - Have a Q&A session at the third day and in between sessions each day
+  - Have a Q&A session at the third day and in between sessions each day
 
 ## Core Concepts
 
 Consider the following five questions to cover the major HDFS topics:
 
-1. **Architecture & Roles:**  Describe HDFS’s overall architecture, including NameNode(s), DataNodes, blocks, and how the namespace and metadata are managed. Don’t forget the role of ZooKeeper in coordinating HA and keeping track of leases.
+1. **Architecture & Roles:** Describe HDFS’s overall architecture, including NameNode(s), DataNodes, blocks, and how the namespace and metadata are managed. Don’t forget the role of ZooKeeper in coordinating HA and keeping track of leases.
 
 עובד לפי ארכיטקטורת master-slave.
 
 NameNode - בעצם מנהל את כל הnamespace ואת המיפוי של בלוקים לdatanodes בעצם המאסטר בארכיטקטורה
 
-DataNode - הישות ששומרת את הבלוקים של המידע בפועל. קריאות וכתיבות מתבצעות דרכה. כשהnode עולה, הוא מנסה להתחבר לnamenode, ומוודא שהnamespace והגרסה שלו תואמים לזה של הNameNode. 
+DataNode - הישות ששומרת את הבלוקים של המידע בפועל. קריאות וכתיבות מתבצעות דרכה. כשהnode עולה, הוא מנסה להתחבר לnamenode, ומוודא שהnamespace והגרסה שלו תואמים לזה של הNameNode.
 
-Blocks - כל קובץ בhdfs מחולק לבלוקים, כל בלוק הוא בגודל 128MB וכל בלוק נשמר פוטנציאלית במקומות שונים 
+Blocks - כל קובץ בhdfs מחולק לבלוקים, כל בלוק הוא בגודל 128MB וכל בלוק נשמר פוטנציאלית במקומות שונים
 בcluster
 
 משתמשים בZK בשביל HA על ידי זה שכל NameNode פוטנציאלי מחזיק session פתוח בצורת ephemeral ובמידה והוא נסגר אז מתבצע leader election בשביל active namenode.
 
+הhdfs מנהל leases שהם בעצם מנעולים (רק על כותבים) שמנוהלים גם הם על ידי הNN
 
-2. **Storage & Fault Tolerance:**  Explain how HDFS divides files into blocks, uses replication (default factor three), and how it detects and recovers from node failures.
+2. **Storage & Fault Tolerance:** Explain how HDFS divides files into blocks, uses replication (default factor three), and how it detects and recovers from node failures.
 
 כל קובץ מחולק לבלוקים בגודל 128MB. כל בלוק נשמר בDN ויש לו עוד 2 רפליקות (דיפולטית) המידע על המיפוי של קובץ-בלוקים כלומר לכל קובץ, איפה הבלוקים שלו נמצאים מופיע בNN. בתוך DN, כל בלוק מיוצג באמצעות 2 קבצים, הדאטא עצמו ומטא דאטא.
 כדי לזהות בעיות, כל DN שולח לNN block report על כל הבלוקים שברשותו כל שעה, ושולח heartbeat לNN כל כמה שניות. אם לא התקבל heartbeat במשך 10 דקות, הNN מחשיב את הDN הזה כמת, ומשכתב את הרפליקות שלו לDN אחר.
 בheartbeats מגיע גם מידע על השרת כמו מקום פנוי, אחוז ניצולת והמידע שעובר כרגע.
-הNN משתמש בזה לLoad Balancing  
+הNN משתמש בזה לLoad Balancing
 
-3. **Topology Awareness & Performance:**  What is rack awareness and why does HDFS replicate across racks? Discuss how block placement, snapshots, and checksums contribute to performance and data integrity.
+3. **Topology Awareness & Performance:** What is rack awareness and why does HDFS replicate across racks? Discuss how block placement, snapshots, and checksums contribute to performance and data integrity.
 
 כל rack זה בעצם קבוצת שרתים שמחוברת לאותה רשת ולכן תקשורת בה יותר מהירה. משתמשים בrack awareness בשביל HA, כלומר מחלקים את הרפליקות בין racks כדי שבמידה וrack נופל למשל הnetwork switch שלו, המידע עדיין יהיה נגיש.
 בנוסף, ככל שהמידע מחולק בצורה יותר רחבה, הוא יהיה נגיש ביעילות ממקומות שונים ברשת ולא בהכרח מrack ספציפי.
@@ -57,33 +63,66 @@ snapshots הם read-only-copy של איזשהו תת עץ בעץ תיקיות.
 hdfs יוצר לכל בלוק checksum בכתיבה ובודק אותו בקריאה.
 זאת טכניקה לאימות המידע כלומר אם הייתה שגיאה אז היא תתגלה אבל לא מה הייתה השגיאה זה חישוב מאוד פשוט ולכן לא משפיע כמעט על הביצועים וזה לא שומר הרבה מקום.
 
-4. **High Availability :**  Outline HDFS High Availability (Active/Standby NameNode, JournalNodes). How do these features improve scalability and uptime?
+4. **High Availability :** Outline HDFS High Availability (Active/Standby NameNode, JournalNodes). How do these features improve scalability and uptime?
 
+קצת הזכרנו מקודם, כדי להשיג HA משתמשים בכמה NN שמחכים ב standby וכאשר הactive נופל הם מחליפים אותו מהר.
+בשביל שההחלפה של הactive תתבצע כמה שיותר מהר משתמשים בJournalNodes.
+בעצם הactive NN רושם פעולות שמתבצעות על הcluster לJN.
+הstandby NN קוראים כל הזמן מהJN ומבצעים את הפעולות לוקאלית. כדי שפעולה תיחשב חוקית היא צריכה להירשם לרוב של ה JN.
+בנוסף כל DN חייב לשלוח block reports גם לstandby כדי שתהיה להם גם תמונה נכונה של הקבצים במערכת.
+באופן הזה אם הactive נפל, אחד הstandby יכול לתפוס את המקום שלו במהירות כמעט בלי צורך להסתנכרן
 
+5. **Protocol & Operations:** Describe how clients read and write data to HDFS via RPC, how they locate NameNodes and DataNodes, how DataNodes send block reports, and why these mechanisms matter for everyday operations. Cover the runtime behaviour of leases and pipeline formation.
 
-5. **Protocol & Operations:**  Describe how clients read and write data to HDFS via RPC, how they locate NameNodes and DataNodes, how DataNodes send block reports, and why these mechanisms matter for everyday operations. Cover the runtime behaviour of leases and pipeline formation.
+הלקוח לא מאתר ישירות את הNN, הוא פונה לnameservice, והוא מפנה אותו לactive. הnameservice עובד בעצם כמו סוג של proxy לNN.
+
+בקריאה, הלקוח פונה לNN באמצעות RPC כדי לקבל את המיקומים של הבלוקים הראשונים של הקובץ. הNN מחזיר את הכתובות של הDN שיש להם רפליקה של הבלוקים האלה.
+מוחזר אובייקט סטרים שעליו מופעל read() שמזרים מידע חזרה ללקוח כשמסיימים לקרוא את הבלוק, נסגר החיבור לDN והDFSInputStream מחזיר את הDN שמחזיק את הבלוק הבא.
+כשמסיימים לקרוא סוגרים את הFSInputStream שעוטף את הDFSInputStream.
+
+בצורה דומה, כתיבה מתחילה גם כן בשליחת RPC לNN עם בקשת create כדי ליצור קובץ חדש בלי בלוקים שקשורים אליו כרגע.
+הNN מבצע בדיקות כדי לוודא כל מיני דברים, למשל הרשאות ושהקובץ לא קיים כבר. אם הכל עובר הNN יוצר רשומה עם הקובץ החדש. ואז מוחזר FSDataOutputStream שהלקוח יכול לרשום אליו מידע. כמו בקריאה זה עוטף את DFSOutputStream שמנהל את התקשורת בין הDN לNN.
+המידע שנכתב מחולק לpackets שנרשמים לאיזה תור פנימי שנקרא data queue המידע נצרך באמצעות DataStreamer שאחראי לבקש מהNN להקצות בלוקים חדשים ולבחור רשימה של DNים שישמשו כרפליקות.
+הרפליקות מהוות פייפליין כלומר הDataStreamer מזרים את הפקטות לDN הראשון והוא מזרים אותן הלאה לאחר שכל הDNים כתבו את המידע הם מחזירים ack.
+לבסוף לאחר פקודת close הNN כבר יודע את המיקומים של הבלוקים והוא רק מחכה שכולם יחזירו לו ack.
+
+הNN משתמש במידע מheartbeats גם כדי לדעת את המצב של הDN אבל גם להרבה דברים אחרים למשל כדי לרשום בלוק חדש לcluster, לדווח על מקום פנוי אחוז ניצולת.
+הNN משתמש במידע הזה כדי לבזר עומסים בצורה טובה יותר ולתפעל את הcluster יותר ביעילות.
+
+הblock reports חשובים כדי שהNN יוכל לדעת איפה נמצא כל בלוק כדי לדעת להפנות לשם במידת הצורך
+
+על pipeline formation הסברתי בחלק של הכתיבה.
+לגבי leases, מכיוון שאנחנו עובדים במערכת מבוזרת, אי אפשר לאפשר לשני כותבים לכתוב לאותו קובץ במקביל, lease הוא בעצם סוג של lock עם timeout.
+
+חשוב לשים לב שניהול של heartbeats, block reports, leases כולם overhead של ניהול הcluster שיושב על הNN.
 
 ### 🔄 Alternatives
+
 Assignment: You are required to research and write a comparative analysis between HDFS and an industry alternative.
+
 - Deliverable: A written summary (minimum 1 or 2 sentences).
 - Focus: Compare performance, architecture, and specific "pain points" this tool solves compared to legacy systems or competitors.
 - Goal: You must be able to justify why the department uses this tool for our specific environment.
 
 ### 🎯 User Story & Scenario
+
 Assignment: Based on your research and understanding of the department's pipeline, define a concrete Use Case for this technology.
+
 - Deliverable: A written summary example/story (two paragraphs approx.).
 - Requirement: Describe a real-world scenario (e.g., a specific client requirement) where this technology is the optimal solution.
 - Data Flow: Map out the data flow and explain how this tool integrates with other components in the Data Pipeline.
 
-
 ## Wrapping Up :trophy:
+
 Review your answers with your mentor and discuss any unclear points. Relate these concepts back to real-world usage scenarios you might encounter.
 
 ## Action Items
+
 - Note topics you want to investigate further.
 - Prepare questions for the mentor Q&A session.
 - Continue the Day 01 challenge by linking these HDFS concepts to other chapters.
 
 ## Recommended Resources
+
 - [Official HDFS User Guide](https://hadoop.apache.org/docs/stable/hadoop-project-dist/hadoop-hdfs/HdfsUserGuide.html)
 - [Hadoop: The Definitive Guide (O'Reilly)](https://piazza-resources.s3.amazonaws.com/ist3pwd6k8p5t/iu5gqbsh8re6mj/OReilly.Hadoop.The.Definitive.Guide.4th.Edition.2015.pdf)
