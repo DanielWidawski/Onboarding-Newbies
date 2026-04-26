@@ -99,6 +99,8 @@ ACL - Access Control Lists - בעצם מאפשרים לנו לתת הרשאות 
 בהקשר של מערכות קבצים, מידע או פעולה שקורית לא מתבצעת נשמרת ישירות על המערכת, אלא נרשמת במקום פנוי בדיסק ורק לאחר שהמידע הצליח להשמר, מעדכנים את המטא דאטא. העובדה שהמידע הישן לא נמחק מאפשר לנו לקחת snapshots.
 חסרון הוא שהעתקות כאלה של המידע יכולות לגרום לפרגמנטציה.
 
+המושגים caching ו write buffering קצת הפוכים לcrash recovery כי הם באים לאפטם גישות לדיסק על ידי שמירת המידע בזיכרון נדיף למשל cache או ram מה שמאיץ פעולות I/O אבל פוגע ביכולת לבצע crache recovery כי הזיכרון נדיף ונמחק במידה ואין חשמל, לעומת דיסקים.
+
 5. **Performance Trade‑offs & Distributed Extensions:**  Discuss the key trade‑offs between throughput, latency, and reliability in file systems. Finally, briefly explain how additional concepts like replication, failover, and namespace servers extend these ideas in distributed systems (HDFS, Ceph) without re‑inventing the core principles.
 
 lataency - זה הדיליי בין בקשה לתשובה
@@ -108,8 +110,12 @@ reliability - כמה המערכת שומרת על מידע עקבי, רלוונ�
 או במקרה ההפוך, מערכות שהן יותר בזמן אמת מתעדפות latency נמוך על חשבון throughput גבוה
 באופן דומה, בשביל מערכת אמינה ועקבית לפעמים צריך להוסיף רכיבים שפוגעים ב latency, למשל journaling.
 
+בhdfs למשל ניתן להגדיר replication factor לכל קובץ, כלומר כל בלוק ירופלק כמות מסויימת של פעמים ב cluster מה שמגדיל את ה reliability. זה גם מקטין את ה latency בקריאה על ידי בחירת הרפליקה הקרובה
 
+בשביל HA ניתן להגדיר (לפחות בhdfs) שרת NameNode שיעבוד ב standby ובמקרה של נפילה, השרת שב standby יעבור לactive כמה שיותר מהר.
 
+בhdfs יש namenode שאחראי על הnamespace כלומר הוא אחראי על כל הפעולות מול הnamespace למשל עריכת שמות של קבצים וACL.
+הארכיטקטורה הזאת גם כן עוזרת לשמור על מידע אמין.
 
 ### Real-World Context
 Rather than focusing on one technology, think about how these ideas show up in common operating systems (ext4, NTFS, APFS), networked storage (NFS, SMB), and cloud offerings (S3, Azure Blob). Your task is to recognize the underlying principles across implementations.
