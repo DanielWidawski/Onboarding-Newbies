@@ -25,9 +25,42 @@ Estimated Duration: 3 Days
 Consider the following five questions to cover the major HDFS topics:
 
 1. **Architecture & Roles:**  Describe HDFS’s overall architecture, including NameNode(s), DataNodes, blocks, and how the namespace and metadata are managed. Don’t forget the role of ZooKeeper in coordinating HA and keeping track of leases.
+
+עובד לפי ארכיטקטורת master-slave.
+
+NameNode - בעצם מנהל את כל הnamespace ואת המיפוי של בלוקים לdatanodes בעצם המאסטר בארכיטקטורה
+
+DataNode - הישות ששומרת את הבלוקים של המידע בפועל. קריאות וכתיבות מתבצעות דרכה. כשהnode עולה, הוא מנסה להתחבר לnamenode, ומוודא שהnamespace והגרסה שלו תואמים לזה של הNameNode. 
+
+Blocks - כל קובץ בhdfs מחולק לבלוקים, כל בלוק הוא בגודל 128MB וכל בלוק נשמר פוטנציאלית במקומות שונים 
+בcluster
+
+משתמשים בZK בשביל HA על ידי זה שכל NameNode פוטנציאלי מחזיק session פתוח בצורת ephemeral ובמידה והוא נסגר אז מתבצע leader election בשביל active namenode.
+
+
 2. **Storage & Fault Tolerance:**  Explain how HDFS divides files into blocks, uses replication (default factor three), and how it detects and recovers from node failures.
+
+כל קובץ מחולק לבלוקים בגודל 128MB. כל בלוק נשמר בDN ויש לו עוד 2 רפליקות (דיפולטית) המידע על המיפוי של קובץ-בלוקים כלומר לכל קובץ, איפה הבלוקים שלו נמצאים מופיע בNN. בתוך DN, כל בלוק מיוצג באמצעות 2 קבצים, הדאטא עצמו ומטא דאטא.
+כדי לזהות בעיות, כל DN שולח לNN block report על כל הבלוקים שברשותו כל שעה, ושולח heartbeat לNN כל כמה שניות. אם לא התקבל heartbeat במשך 10 דקות, הNN מחשיב את הDN הזה כמת, ומשכתב את הרפליקות שלו לDN אחר.
+בheartbeats מגיע גם מידע על השרת כמו מקום פנוי, אחוז ניצולת והמידע שעובר כרגע.
+הNN משתמש בזה לLoad Balancing  
+
 3. **Topology Awareness & Performance:**  What is rack awareness and why does HDFS replicate across racks? Discuss how block placement, snapshots, and checksums contribute to performance and data integrity.
+
+כל rack זה בעצם קבוצת שרתים שמחוברת לאותה רשת ולכן תקשורת בה יותר מהירה. משתמשים בrack awareness בשביל HA, כלומר מחלקים את הרפליקות בין racks כדי שבמידה וrack נופל למשל הnetwork switch שלו, המידע עדיין יהיה נגיש.
+בנוסף, ככל שהמידע מחולק בצורה יותר רחבה, הוא יהיה נגיש ביעילות ממקומות שונים ברשת ולא בהכרח מrack ספציפי.
+מצד שני יש את הטרייד אוף עם הכתיבה, כתיבה לDNים שונים יותר איטית אבל יש פחות עמידות.
+
+snapshots הם read-only-copy של איזשהו תת עץ בעץ תיקיות.
+היתרון שלהם הוא שהם לא צורכים הרבה מקום אבל הם לא באמת שומרים את המידע עצמו אלא רק את המטא דאטא על כל קובץ והבלוק ליסט שלו.
+
+hdfs יוצר לכל בלוק checksum בכתיבה ובודק אותו בקריאה.
+זאת טכניקה לאימות המידע כלומר אם הייתה שגיאה אז היא תתגלה אבל לא מה הייתה השגיאה זה חישוב מאוד פשוט ולכן לא משפיע כמעט על הביצועים וזה לא שומר הרבה מקום.
+
 4. **High Availability :**  Outline HDFS High Availability (Active/Standby NameNode, JournalNodes). How do these features improve scalability and uptime?
+
+
+
 5. **Protocol & Operations:**  Describe how clients read and write data to HDFS via RPC, how they locate NameNodes and DataNodes, how DataNodes send block reports, and why these mechanisms matter for everyday operations. Cover the runtime behaviour of leases and pipeline formation.
 
 ### 🔄 Alternatives
