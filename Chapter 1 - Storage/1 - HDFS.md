@@ -96,6 +96,66 @@ hdfs יוצר לכל בלוק checksum בכתיבה ובודק אותו בקרי
 
 חשוב לשים לב שניהול של heartbeats, block reports, leases כולם overhead של ניהול הcluster שיושב על הNN.
 
+## Extra Questions
+
+1. מה זה native api ?
+
+זה בסהך הכל api רגיל או בעצם אינטגרציות שנוצרו על ידי אותו ארגון של האפליקציות עצמן למשל אינטגרציה בין Google meet ל Google cloud.
+
+2. מה זה thrift ומה מיוחד בו ?
+
+זה בעצם "מערכת" שדרכה ניתן לממש RPC.
+הוא מאפשר Cross-Language Service, כלומר מאפשר להנגיש שירותים שרשומים בשפות שונות ובכך לאפשר אינטגרציה פשוטה יותר בין מערכות.
+
+3. מה ההבדל העיקרי בין שרת rest סטנדרטי לבין שרת rpc ?
+
+ההבדל העיקרי הוא שREST יותר מכוון לבצע מניפולציות על עצמים בשרת למשל להפעיל אותם או לצרוך אותם לעומת RPC שנועד להפעיל פונקציונליות מסויימת על שרת מרוחק ולהתייחס לזה כאילו זה הופעל לוקאלית.
+ובנוסף, REST הוא stateless לעומת RPC שיכול להיות statefull
+
+4. מה ההבדלים העיקריים בין HDFS 1 ל 2 ?
+
+ההבדל העיקרי הוא הפיצ'ר של HA
+YARN שנותן עוד dameons כמו resource manager, Node manager, app master ועוד
+ויש את האופציה של פדרציה וכך כמה NN יכולים לשמור מידע באותו DN בלי שאחד יוכל לגשת למידע של השני.
+נוסף גם rolling update.
+
+5. למה נוצר HDFS ?
+
+hdfs נוצר כדי לאפשר dfs על חומרה זולה, ועדיין להיות fault tolerant ועדיין להיות סקיילבילי מאוד וגם תומך בstreaming של מידע. נוצר לראשונה בשביל מנוע חיפוש Nutch
+
+6. מה כלי הCLI המומלצים ביותר לפניה לHDFS ?
+
+המומלץ ביותר הוא בעזרת ה native כלומר הhdfs cli.
+
+7. האם קריאה של קובץ בHDFS היא לינארית או מקבילית ?
+
+כן, קריאה של קובץ בhdfs היא מקבילית.
+
+8. הגבלות על לקוחות בHDFS ?
+
+
+
+9. האם פניות לcluster חייבות להתבצע דרך ה active NN
+
+כן, כל הפניות מופנות לactive NN כי הוא הישות הפעילה היחידה שמחזיקה את המטא דאטא על העץ תיקיות והמיקומים של בלוקים וקבצים ולכן אין דרך לבצע פעולות על הcluster שאינן עוברות דרכו.
+
+10. Audit and Edit Logs ?
+
+
+
+11. Under replicated and Missing blocks.
+
+Under Replicated - הבלוק לא רופלק מספיק פעמים כמו שמוגדר בreplication factor.
+Missing Blocks - הבלוק לא נגיש בcluster.
+
+לעומת Unde replicated block שהמידע עדיין נגיש, בmissing block אין דרך  לגשת למידע.
+זה יכול לקרות למשל כשDN נופל או כשיש החלפה של active NN והתקשורת עם הJournal node אינה תקינה או שאפילו הfsimage והמטא דאטא לא מעודכנים.
+
+12. מה זה RPC Queue ?
+
+כל בקשות RPC נכנסות לתור. מהתור יש handlers שמוציאים את הבקשות מהתור ומטפלים בהן.
+כאשר התור עמוס או מלא - הhandlers לא עומדים בקצב, בקשות יכולות לא להתבצע ובאופן כללי המצב של הcluster ובפרט הNN לא בריא.
+
 ### 🔄 Alternatives
 
 Assignment: You are required to research and write a comparative analysis between HDFS and an industry alternative.
