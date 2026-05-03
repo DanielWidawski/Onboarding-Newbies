@@ -261,6 +261,19 @@ hdfs dfs - הוא ספציפי לhdfs ולא דורש URI מלא.
 
 כן, זה אפשרי.
 
+24. מה המגבלה על כמות ACL שניתן להוסיף ?
+
+ניתן להוסיף עד 32 כניסות.
+
+25. האם ניתן להגדיר quota על נתיב חורג, ואם כן, מה המגבלות ?
+
+כן, ניתן להגדיר quota על נתיב חורג, ואז לא נוכל להמשיך לחרוג אבל המידע שיש כרגע ישמר.
+
+26. לאן קובץ הולך כשמוחקים אותו ?
+
+כל קובץ שמשתמשים מוחקים, הולך לתיקייה .Trash תחת הhome directory שלהם.
+בפועל זה כמו snapshot רק שנמחק לגמרי אחרי פרק זמן מוגדר וקונפיגורבילי.
+
 ### 🔄 Alternatives
 
 Assignment: You are required to research and write a comparative analysis between HDFS and an industry alternative.
