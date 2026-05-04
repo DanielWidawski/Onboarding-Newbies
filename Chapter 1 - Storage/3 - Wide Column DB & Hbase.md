@@ -79,8 +79,38 @@ Answer these five questions to cover HBase’s major areas:
 1. **Architecture & Data Model:**  
    Describe the overall architecture of Apache HBase, including tables, rows keyed by row key, column families, regions, and the storage format (HFile). How do these elements differ from a traditional relational database, and why is schema design driven by access patterns?
 
+   בHBase, מידע נשמר בטבלאות כל טבלה מורכבת משורות וכל שורה מורכבת מrow key וכמות עמודות שקשורה אליה.
+   השורות מסודרות באופן אלפביתי לפי הrow key, ולכן כדי שמידע דומה ישמר קרוב - באותו partition, נדאג שהrow keys שלהם יהיו דומים.
+   כל column family מגדיר פיזית מקום לעמודות וערכים שלהם על הדיסק. לכל column family יש תכונות שמגדירות איך האחסון נשמר בפועל כמו האם לשמור ערכים בmemory או איך לקודד מפתחות ועוד.
+   כל טבלה לאחר שהיא עוברת threshold מסויים מחולקת לregions כל region מכיל חלק משורות בטבלה.
+   המידע בפועל נשמר בפורמט HFile בפורמט הזה נשמרים המפתחות והערכים באופן ממויין לפי המפתחות כאשר שניהם נשמרים כמערך של בתים.
+   בRDBMS רגילים יש סכימה מאוד קשיחה וכמעט אין גמישות והעובדה שהמטרה של הDB היא שהוא יהיה רלציוני פוגעת קשות בסקיילביליות.
+   כאן, הקונספט של column families מונע את הבעיות האלה ומאפשר גם גמישות וגם אפשרות לשמור ערכים ריקים. ואנחנו מתפשרים על קשרים בין טבלאות על מנת לאפשר סקיילביליות גבוהה.
+
+   בראי הschema design חשוב לקחת בחשבון במיוחד את ה row key, הוא בעצם האינדקס היחיד שלנו ולכן נרצה שרוב הגישות יקרו דרכו שכן הוא הכי אופטימלי לחיפושים.
+   ובנוסף ננסה להמנע מhot spot כלומר range ספציפי של ערכים שרושמים אליו באופן תדיר מדי.
+   בנוסף על ידי זה ששמים עמודות דומות באותה משפחה, נקבל בפעולות read את המידע שצריך אבל לא יותר מה שמייעל על חיפושים מורכבים.
+
 2. **Components & Storage Flow:**  
    Explain the roles of RegionServers, MemStore, HFiles, block cache, and the Write-Ahead Log (WAL). How does data flow from a client write to durable storage, and how are reads served from memory and disk structures?
+
+RegionServer - המטרה של RegionServers היא להנגיש ולנהל regions בסביבה מבוזרת, הRegionServer יושב על DataNode.
+
+MemStore - הmemstore הוא סוג של write buffer שיושב בmemory. כשלקוח רושם מידע לטבלה בhbase, השינוי נרשם קודם כל בmemstore מה שמאפשר פעולות מאוד מהירות על המידע הזה.
+
+HFile - זה פורמט הקובץ בו hbase משתמש כדי לאחסן מידע מעל ה hdfs. הוא מכיל אינדקס שמאפשר לhbase לחפש בו מידע בלי לעבור על כל הקובץ.
+
+block cache - זה פשוט cache של בלוקים שיישבו בזיכרון כדי לאפטם פעולות מולם ולחסוך בפעולות I\O מול הדיסק. 
+
+WAL - Write Ahead Log - כל פעולה כתיבה נכתבת לWAL שהוא קובץ שאינו נדיף וכך, אם RegionServer נפל לפני שהוא הספיק לעשות flush לmemstore שלו, המידע לא ייאבד.
+
+הflow של כתיבה נראה ככה :
+לקוח שולח בקשה לRegionServer.
+הRegionServer רושם את הבקשה לWAL.
+המידע נרשם בmemstore.
+לאחר שהmemstore מתמלא נעשה flush לדיסק כקובץ HFile.
+
+בקריאה דבר ראשון מחפשים בblock cache לאחר מכן מחפשים בmemstore אם עדיין לא נמצא נשתמש בbloom filter וblock cache כדי לטעון את המידע מהhfile.
 
 3. **Performance & Maintenance:**  
    What are minor and major compactions, MOB storage, Bloom filters, and caching? How do they affect read/write latency, storage efficiency, and amplification? Discuss the importance of row-key design and hotspot avoidance.
