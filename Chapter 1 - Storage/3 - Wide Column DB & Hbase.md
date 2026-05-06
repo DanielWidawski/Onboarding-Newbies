@@ -229,6 +229,72 @@ hbase לא תומך בjoin באופן ישיר
 
 אוסף שמחזיק CF בregion, זה בעצם הmemstore של הCF והhfiles שמשוייכים לCF הזה.
 
+## Extra Q&A
+
+1. HBCK and HBCK 2 ?
+
+כלי שבודק עקביות ונכונות של טבלאות בHBase.
+hbck1 לא עובד בגרסאות hbase 2 ומעלה ועלול לעשות נזק.
+
+2. async WAL Replication ?
+3. Region Replication (HA) ?
+
+
+
+4. HDFS vs HBase replication ?
+5. דרכי התחברות לHBase ?
+
+
+6. procedures ו remote procedures ב HBase ?
+
+פרוצדורה זו פעולה שמשנה ישות בhbase למשל regions וtables.
+בגדול בhbase פרוצדורות ממשיכות לנסות להתבצע עד שהן מסיימות או נכשלות.
+remote procedures הן בסך הכל פרוצדורות שרצות על שרתי region server "מרוחקים" למשל פרוצדורות שפותחות וסוגרות regions הן remote procedures.
+
+7. RIT - Region In Transition in HBase ?
+
+מצבים חולפים של regions בhbase למשל closing, opening.
+regions במצבים האלה אינם זמינים עד שהם online.
+
+8. Region States ?
+
+לregion יכולים להיות מספר מצבים (states) המצבים נשמרים בטבלת הMETA.
+המצבים החשובים הם
+offline - הregion לא במצב נגיש ולא הולך להיפתח
+open - הregion פתוח והRS עדכן את המאסטר.
+closed - הRS סגר את הregion ויידע את המאסטר.
+failed close - הRS לא הצליח לסגור את הregion
+splitting - כאשר RS מודיע למאסטר שregion מסויים עובר ספליט
+ועוד...
+
+9. Connection Registry \*סוגים ואבולוציה ?
+
+
+
+10. אלו אובייקטים נשמרים כMOB ?
+11. Bulk Load ?
+
+זה פיצ'ר שמשתמש בmapred כדי לפרסר מידע טבלאי בפורמט של Hbase כלומר hfiles
+ואז להעלות אותו ביעילות לcluster בצורת batch.
+
+12. Short Circuit ?
+
+short circuit זאת אופציה קונפיגורבילית לאפשר ל hbase לקרוא קבצים ישירות מהדיסק המקומי במקום לפתוח socket לDN ולתקשר עם הFS דרכו
+
+13. האם HBase מחייב Data Locality והאם ניתן לשפר או מי אחראי על זה ?
+14. האם region זמין לקריאה וכתיבה במהלך region split ?
+
+לא, region במהלך split לא זמין לא לקריאה ולא לכתיבה.
+
+15. Reference Files ?
+
+אלו קבצים שנוצרים כחלק מתהליך הregion split ומטרתם להחזיק מצביע (כמו symlink) על 2 החצאים בregion המקורי.
+
+16. תיקיית archive ומה היא מכילה ?
+17. תיקיית oldwals ?
+18. \* אינדקסים בHFile ?
+19. מתי הRK מרופלק בתוך HFile - use case ?
+20. RPC בHBase ?
 ---
 
 ### 🔄 Alternatives
