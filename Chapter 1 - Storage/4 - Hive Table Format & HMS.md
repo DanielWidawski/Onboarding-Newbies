@@ -27,6 +27,16 @@ Answer the following questions to explore the metastore:
 
 1. **Purpose & Function:**  What is the Hive Metastore and what types of metadata does it store (databases, tables, columns, partitions, locations, statistics)? Why is a centralized metadata service necessary in a distributed data platform?
 
+ההייב metastore מורכב משני חלקים.
+הservice שרץ ודרכו שולחים בקשות ופונים לmetastore.
+והDB עצמו שבו המידע שמור בפועל.
+הmetastore מכיל בתוכו metadata בגדול על כל מה שמוזכר 
+
+הmetastore היא בעצם שכבת אבסטרקציה בין השכבה הפיזית ללוגית.
+כלומר מקביל שמות של טבלאות למיקומים פיזים, מחזיק סכמות של טבלאות data types ואוכף סדר
+פורמטים של קבצים ואלגוריתם הכיווץ שלהם
+וpartitions.
+
 2. **Architecture & Backend:**  Describe how the metastore is implemented as a standalone service backed by a relational database. What are common backend databases, and how does the service scale and handle concurrent clients?
 
 3. **Schema & Tables:**  What are the key tables in the metastore schema (e.g. DBS, TBLS, SDS, PARTITIONS)? How do they relate to Hive objects?
