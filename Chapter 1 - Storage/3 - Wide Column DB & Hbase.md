@@ -239,11 +239,8 @@ hbck1 לא עובד בגרסאות hbase 2 ומעלה ועלול לעשות נז
 2. async WAL Replication ?
 3. Region Replication (HA) ?
 
-
-
 4. HDFS vs HBase replication ?
 5. דרכי התחברות לHBase ?
-
 
 6. procedures ו remote procedures ב HBase ?
 
@@ -269,8 +266,6 @@ splitting - כאשר RS מודיע למאסטר שregion מסויים עובר �
 
 9. Connection Registry \*סוגים ואבולוציה ?
 
-
-
 10. אלו אובייקטים נשמרים כMOB ?
 11. Bulk Load ?
 
@@ -291,10 +286,16 @@ short circuit זאת אופציה קונפיגורבילית לאפשר ל hbase
 אלו קבצים שנוצרים כחלק מתהליך הregion split ומטרתם להחזיק מצביע (כמו symlink) על 2 החצאים בregion המקורי.
 
 16. תיקיית archive ומה היא מכילה ?
+
+אם נלקח snapshot על טבלה מסויימת, נרצה שהמידע המקורי יישמר ולכן נעביר את הקבצים לתיקיית archive כדי שלא יושפעו מcompactions וmerges למיניהם.
+וsnapshots יחזיקו הפני אליהם.
+
 17. תיקיית oldwals ?
+
 18. \* אינדקסים בHFile ?
 19. מתי הRK מרופלק בתוך HFile - use case ?
 20. RPC בHBase ?
+
 ---
 
 ### 🔄 Alternatives
