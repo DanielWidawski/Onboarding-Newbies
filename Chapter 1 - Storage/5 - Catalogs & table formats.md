@@ -72,6 +72,13 @@ schema on read כלומר אין פורמט סטנדרטי למידע נכנס �
    and why might systems introduce separate catalog layers (e.g. AWS Glue,
    Databricks Unity Catalog, in‑house catalog backed by PostgreSQL)?
 
+הקטלוג הוא בעצם רשימה של המידע הקיים במערכת משתמשים בו כדי למצוא ולהבין את המידע בקלות.
+הHMS הוא סוג של קטלוג.
+בעצם השימוש בו הוא על מנת לסווג את המידע וגישה אליו בצורה מהירה ולדעת מידע עליו בלי לגשת למידע ישירות.
+חברות נוהגות להוציא קטלוגים משלהן כדי להפריד תלויות מהדאטא עצמו לקטלוג.
+וכל catalog עוזר לדברים קצת יותר ספציפים.
+ובגדול כל המטרה של קטלוג הוא לסווג את המידע ללא תלות לאיך הוא נשמר אז אין סיבה שהוא לא יהיה אגנוסטי לפלטפורמת האחסון.
+
 3. **Catalog Architecture:** Explain typical components of a catalog service
    (namespace management, table and partition metadata, permissions). What
    backend storage is used? Is the catalog itself just a database, or does it
