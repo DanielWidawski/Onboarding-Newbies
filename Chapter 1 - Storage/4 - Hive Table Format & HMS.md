@@ -39,11 +39,31 @@ Answer the following questions to explore the metastore:
 
 2. **Architecture & Backend:**  Describe how the metastore is implemented as a standalone service backed by a relational database. What are common backend databases, and how does the service scale and handle concurrent clients?
 
+הHMS בנוי משני חלקים, הservice שהוא בעצם הgateway למידע, והוא ניגש לmetastore בפועל.
+ניתן להרים כמה instances שלו תחת איזשהו loadbalancer 
+ובאופן הזה לנהל מספר משתמשים במקביל.
+המידע בפועל נשמר בRDBMS שהוא חלק מהJDBC והאופי שלו כDB רלציוני מאפשר ACID ובכך גישות ממספר משתמשים.
+הDBים הנפוצים הם postgress או MySQL.
+
 3. **Schema & Tables:**  What are the key tables in the metastore schema (e.g. DBS, TBLS, SDS, PARTITIONS)? How do they relate to Hive objects?
+
+די אינטואיטיבי, DBS היא טבלה שמחזיקה מידע על הDBים שיצרנו בהייב למשל הURI והOWNER.
+TBLS היא טבלה שמחזיקה מידע על הטבלאות שלנו כמו שם הטבלה זמן גישה אחרון והיא מקושרת להמון טבלאות אחרות שמשלימות את המידע עליה כמו סטטיסטיקות הרשאות וpartition keys.
+טבלת partition מכילה מידע על הpartitions 
+וSDS מכיל מידע על המיקום הפיזי של טבלאות ועמודות
 
 4. **Extensibility & Clients:**  How do external engines such as Apache Spark, Trino, and other tools interact with the metastore? What APIs and protocols are used?
 
+ניתן לגשת לmetastore דרך api של JDBC או באמצעות thrift api.
+הפורט הדיפולטי הוא 9083 thrift הוא 
+כל המנועים האלה מדברים עם הHMS (ויותר ספציפית הload balancer) דרך thrift בפורט הנ"ל. 
+
 5. **Administration:**  What are common administrative tasks (backup, schema upgrades, migration, repair)? What happens if the metastore becomes unavailable, and why is it considered a critical dependency in data platforms?
+
+ניתן לעשות backup לmetastore באמצעות פקודות dump למיניהן על הDB.
+בשביל שינויים בschema ניתן להשתמש בפקודה schematool בשביל אדמיניסטרציה שקשורה לסכימה.
+ניתן לעשות מיגרציות באמצעות פקודת mirror
+בשביל תיקונים של טבלאות ספציפית partitions, ניתן להשתמש בפקודה msck.
 
 ## Hive Table Formats
 
