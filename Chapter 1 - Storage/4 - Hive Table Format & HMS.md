@@ -71,11 +71,63 @@ Answer the following questions to understand table formats:
 
 1. **Definition & Role:**  What does a “table format” mean in Hive? How does it differ from table metadata stored in the metastore? Explain the relationship between logical schema and physical file layout.
 
+table format זו דרך לאגד מספר קבצי מידע ולהציג אותם תחת טבלה אחת אחידה.
+בהייב, הtable format הוא כל הקבצים תחת נתיב מסויים (או לפי prefix בobject storage).
+בעצם בHMS שמורים הpaths והמידע הפרקטי שנותן לנו לקרוא את המערכת קבצים בצורה טבלאית ואילו הtabke format הוא בסך הכל איך טבלה מוגדרת על גבי המערכת קבצים בעצם כל מה שתחת תיקייה מסויימת הוא בטבלה, כאשר תתי תיקיות הם partitions.
+
 2. **Common Formats:**  Describe popular formats such as Text/CSV, Parquet, ORC, Avro. How do they differ in encoding, compression, columnar storage, and query performance?
+
+אפשר לחלק את הפורמטים של הקבצים ל3 קבוצות עיקריות.
+structured, semistructured, unstructured.
+בתוך structured ניתן לחלק ל2 סוגים, row oriented, column oriented.
+את הדוגמאות ניתן לחלק באופן הבא:
+
+text הוא unstructured כלומר ניתן לרשום בקלות לסוף אבל אין שום דרך לחפש מידע ביעילות. הוא מקודד כtext כלומר ASCII או UNICODE ולכן קריא לבני אדם.
+
+CSV הוא structured row oriented.
+הוא גם כן פורמט טקסטואלי ולכן קריא לבני אדם.
+היתרונות שלו הם שהוא מאוד פשוט ונגיש, מצד שני, הוא לא יכול לאכוף סכימה, יש בעיות עם תווים מיוחדים וההבדל בין Null לתא ריק. 
+בפורמט מכווץ הוא יכול להקרא רק כstream רציף ולכן לא יעיל.
+
+parquet הוא structured column oriented.
+הוא מכיל בתוכו גם סכימה של המידע וגם metadata מה שמייעל קריאות.
+הוא לא טקסטואלי ולכן לא ניתן לקרוא את המידע עם איזשהו text editor.
+הוא מאוד יעיל בתפיסת המקום שלו ושאילתות רצות פי 30 יותר מהר ביחס לCSV.
+הוא תומך בהרבה אלגוריתמי כיווץ ביניהם Snappy, GZIP, Brotli.
+ויש לו תמיכה בכמה אופציות קידוד Dictionary, RLE, DELTA.
+הצורה בא הוא בנוי מאפשרת לשאילתות לפי עמודות לרוץ מאוד מהר כי הם שמורות קרוב.
+מעצם העובדה שהוא columnar, ומשתמש בדחיסה וקידוד לפי עמודות מה שמאוד מקשה על כתיבות.
+ובנוסף, עבור כמות מידע יחסית קטנה, כיוון שהיתרונות של הפורמט לא באים לידי ביטוי אלא מהווים overhead.
+כנ"ל בקריאה של קצת מידע.
+
+ORC הוא גם כן פורמט structured column oriented.
+הוא מכיל בתוכו אינדקס, מה שמאפשר קריאה מאוד מהירה של מידע.
+הוא מחולק לstripes, מקביל לRow Group של parquet, מכיל סטטיסטיקות על כל stripe שמאפשר דילוג על כאלה מסויימים בהתאם לסטטיסטיקות.
+הפורמט מאוד מאופטם לכיווצים גם כן בדומה לparquet.
+הפורמט משתמש בdelta encoding.
+כרגע, זה הפורמט היחיד שתומך בACID בהייב, הפיצ'ר בנוי כך שכל פורמט שיש לו ROW Id בצורה כלשהי אבל כרגע האינטגרציה היא רק לORC.
+
+Avro הוא פורמט row oriented (אני נזהר להגיד structured למרות שלדעתי הוא כזה).
+הוא משמש בעיקר לSerDes על ידי זה שהוא שומר את הסכימה של המידע בפורמט JSON ביחד עם המידע עצמו.
+הוא מאוד יעיל לכתיבות בקצב גבוה ולכן אופטימלי לstreaming ומשתמשים בו בkafka
+הוא שומר את המידע בצורה בינארית שיותר יעיל בשליחה ברשת אבל זה לא קריא.
+חיפושים גם כן יהיו לא יעילים כי לא שומרים איזשהו מבנ"ת שעוזר לזה.
 
 3. **Schema & Tables:**  Explain the difference between managed and external tables, including ownership, lifecycle, and storage location semantics. How does the metastore map logical tables to physical data in storage systems like HDFS or object storage?
 
+ההבדל הוא בניהול של המידע עצמו.
+בmanaged table, הייב מנהל גם את המטא דאטא וגם את המידע עצמו. 
+כך למשל הייב בוחר איפה לרשום את הטבלה ויש לו שליטה מלאה על הטבלה, בנוסף פקודה כמו DROP TABLE תמחק גם את המידע עצמו וגם את הmetadata.
+לעומת זאת, בexternal table, רק הmetadata מנוהל על ידי הייב ואילו המידע עצמו לא, מה שמאפשר לעוד שירותים לגשת למידע, מצד שני המידע לא מנוהל על ידי הייב מה שאומר שצריך לעשות רפליקציות backup ועוד צעדים לdata integrity ידנית.
+בmanaged, הטבלה נשמרת תחת תיקיית warehouse לעומת external שיכול להשמר במקומות חיצוניים לגמרי למשל cluster שונה.
+בexternal הייב אפילו לא מוודא שהטבלה או הנתיב קיים.
+הוא פשוט מקבל את הlocation (אם צויין) כמו שהוא.
+
 4. **Integration with Storage:**  How do table formats map to physical storage (directories, files)? What conventions does Hive use for partitions, buckets, and file naming?
+
+המיפוי של טבלה בהייב לפי הtable format הוא כך שטבלה מיוצגת באמצעות תיקייה וpartitions הם תתי תיקיות.
+עבור object storage משתמשים בprefix.
+buckets מיוצגים כקבצים תחת partition וממוספרים בסדר עולה.
 
 ### 🔄 Alternatives
 Assignment: You are required to research and write a comparative analysis between Hive table format and HMS and an industry alternative.
