@@ -84,15 +84,45 @@ schema on read כלומר אין פורמט סטנדרטי למידע נכנס �
    backend storage is used? Is the catalog itself just a database, or does it
    also manage pointers to objects in a blob store?
 
+namespace management זה בעצם איחוד לוגי של כמה טבלאות תחת אובייקט אחד שהוא הnamespace.
+(יכול להיות שהכוונה הייתה יותר לסכימה ואכיפה של שמות כדי למנוע קומפליקטים)
+בקטלוגים מודרנים, הmetadata מנוהל גם כן על ידי הקטלוג כלומר מיקומים ושמות של טבלאות וחלוקה שלהם לpartitions.
+בגדול הרשאות די סטנדרטיות, יש איזשהו read שמאפשר לקרוא מידע, write שמאפשר לבצע פעולות על המידע ולהוסיף מידע חדש ואיזשהו admin שיכול לנהל את הגישות ולערוך את הקטלוג עצמו.
+
+בדרך כלל קטלוגים משתמשים בRDBMS כדי לאחסן את המידע שלהם. כלומר מידע של הקטלוג עצמו וmetadata.
+
+אני הייתי חושב על קטלוג כDB של metadata.
+בדרך כלל הוא ממומש על ידי DB כלשהו אבל המידע ששמור בו לא קשור ישירות למה שמחפשים אלא רק מקשר לוגית בין המידע הקיים
+קטלוגים יכולים להחזיק פוינטרים למידע חיצוני כלומר למיקום של המידע בstorage וכך גם לאובייקטים בblob storage.
+
 4. **Table Formats Overview:** Define what a table format is in the context of
    a data lake. How do formats like Iceberg, Delta, and Hudi differ from
    simple Hive/Parquet tables? What features do they add ?
+
+table formats הם פורמטים לאיגוד מידע גולמי תחת טבלה אחידה עם ניהול metadata, schema, ACID.
+הם מאוד שימושיים בdata lakes כי בdata lakes אין פורמט קבוע למידע שיכול להכנס מה שיכול לגרום להמון מידע לשבת בdata lake בלי יכולת לחפש בו משהו ספציפי - swamp.
+
+דבר ראשון parquet הוא לא table format, אני לא מבין מה אפשר להשוות אליו, זה האובייקט הפיזי וtable format הוא יותר קונספט אבסטרקטי.
+
+בנוגע להייב, יש פחות תמיכה בtransactions לפחות בצורה הפשוטה (זה אפשרי עם transactional tables).
+ובנוסף, המבנה ההיררכי גורם לנעילות ומקשה על טרנזקציות.
+הוא לא תומך בtime travel והתמיכה בו דועכת עם השנים.
+לעומת table formats עדכניים יותר כמו Iceberg, Delta, Hudi.
+בגדול hive היה הפורמט הבסיסי וכל פורמט הרחיב לuse case יותר ספציפי,
+כך למשל Hudi תומך ביותר פעולות יותר realtime ו Delta שם דגש על reliability וACID.
 
 5. **Metadata & Transaction Log:** How do modern formats store their own
    metadata? Discuss the concept of a transaction log or manifest file, and
    the distinction between file level metadata (e.g. Iceberg data file footers)
    and catalog entries. When would you even need to think about files if the
    catalog abstracts them away?
+
+בפורמטים טבלאיים מודרנים, המטא דאטא על טבלה נשמר בdata lake סמוך לטבלה ולכן ניתן למצוא אותו בקלות מאוד דרך הקטלוג.
+
+manifest files בעצם שומר metadata על כמות של קבצים בין היתר partitions וסטטיסטיקות וכך בעצם מאפשר דילוג על מספר קבצים על ידי קריאת קובץ אחד וחוסך טעינת המון קבצים גם אם קוראים רק את ה footer שלהם.
+העיקרון של transaction log הוא די דומה לכל העקרונות של edit logs וWAL והם באים כדי לאפשר transactions.
+
+המידע ששמור בקטלוג הוא חילוק לוגי של הקבצים לטבלאות והמיקומים שלהם. לעומת זאת הmetadata של קבצים הוא מה שמאפשר לנו לקרוא אותם. אי אפשר לקרוא קובץ באופן יעיל ולפעמים בכלל בלי המטא דאטא שלו, נניח ולא היינו יודעים איפה מתחילים ונגמרים row groups ב
 
 6. **Interoperability & Ecosystem:** Describe how catalogs and formats enable
    multiple compute engines to work on the same data (Spark, Trino, Flink).
