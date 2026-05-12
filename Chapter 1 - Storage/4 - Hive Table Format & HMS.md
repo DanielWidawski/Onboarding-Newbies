@@ -152,13 +152,26 @@ TBLPROPERTIES ('external.table.purge'='true')
 
 4. למה צריך service בHMS ?
 
+הוא מאפשר גישה לmetastore בצורה אחידה דרך thrift ללא תלות בשפת תכנות.
+בנוסף הוא שומר על נכונות של המידע כלומר הוא לא נותן להרוס את הDB.
+בנוסף הוא מאפשר authorization.
+
 5. מה זה metastore API ?
+
+הnative api של הייב שהוא בעצם client בjava.
+שהוא בעצם עוטף את הthrift api.
 
 6. למה אי אפשר לגשת למידע כשmetastore service למטה ?
 
+כיוון שהcaching נעשה ברמת הservice.
+
 7. האם הHMS עושה caching ?
 
+כן הוא עושה caching, לפי מה שמצאתי הוא עושה caching לתוצאות של queries של המידע בפועל
+
 8. האם ניתן לשלוף בלי הHMS DB ?
+
+לכאורה כן אם זה נשמר בcache.
 
 9. האם ניתן לערוך סכימה של טבלה בהייב ואם כן אז באילו תנאים ?
 
