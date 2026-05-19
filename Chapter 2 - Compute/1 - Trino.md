@@ -74,7 +74,7 @@ Answer these questions to cover Trino’s major architectural and operational co
 
 1. איך אפשר לכפות על trino להיות DB ?
 
-ניתן להגדיר את fs.local.enabled להיות true ואז להתשמש בקטלוג כלשהו על הfs הלוקאלי.
+ניתן להשמש בconnector שנקרא memory ואז מידע נשמר על הnodes עצמם.
 
 2. מה ההבדל בין spooling ל spill to disk ?
 
@@ -92,7 +92,8 @@ Answer these questions to cover Trino’s major architectural and operational co
 
 5. איך משפיע המימוש של RPC Queue מול HTTP בtrino ?
 
-
+לאחר שמתקבלים מספיק בקשות http, trino דוחה את הבקשות ומחזיר שגיאה.
+לעומת RPC queue שיש לו יותר מקום לבקשות, לפחות בhdfs...
 
 6. כשלקוח פונה לtrino איך נקראת הבקשה ?
 
@@ -112,7 +113,8 @@ Answer these questions to cover Trino’s major architectural and operational co
 
 10. האם תמיד קורים כל הסוגים של plan ?
 
-
+למיטב הבנתי כן, שכן הquery plan הוא רק plan לוגי,
+ואילו הdistributed plan שהוא ממש חילוק לstages ומראה ממש את העברת המידע בין workers.
 
 11. מה היחידה הקטנה ביותר בהקשר של Task ?
 
