@@ -144,15 +144,124 @@ Answer these questions to cover Trino’s major architectural and operational co
 הconnector מוכל בתוך קטלוג.
 
 16. מהם 4 הרכיבים של coordinator ?
-    
-    * parser/analyzer - השלב הראשון שמטרתו להפוך statement לשאילתה תקנית על אובייקטים קיימים.
+    - parser/analyzer - השלב הראשון שמטרתו להפוך statement לשאילתה תקנית על אובייקטים קיימים.
 
-    * planner/optimizer - בונה query plan לאחר האפטום.
+    - planner/optimizer - בונה query plan לאחר האפטום.
 
-    * scheduler - אחראי על חילוק העבודה על הworkers.
+    - scheduler - אחראי על חילוק העבודה על הworkers.
 
-    * discovery service - תהליך שרץ על הcoordinator וworkers נרשמים דרכו לcluster.
-    הcoordinator מנהל את הworkers על ידי זה שהם שולחים לו heartbeats. 
+    - discovery service - תהליך שרץ על הcoordinator וworkers נרשמים דרכו לcluster.
+      הcoordinator מנהל את הworkers על ידי זה שהם שולחים לו heartbeats.
+
+## 2nd Q&A
+
+1. איך retry polucy מסוג task מחליף spill to disk ?
+
+אם task נכשל בגלל כי עקף את כמות הזיכרון, מריצים את הtask מחדש עם בקשה לקבל את כל הnode לבד לביצוע של הtask.
+
+2. האם worker יכול להתחבר לכמה coordinators ?
+
+לא, כל worker נרשם לcoordinator יחיד ויש coordinator יחיד בcluster.
+
+3. איפה קורה כל אחד משלבי ה pushdown ?
+
+בpushdown דוחפים את התנאי (לפחות במקרים של predicate, projection) לdata source עצמו, ואז כך חוסכים מעבר של הרבה מידע מיותר ברשת.
+
+4. איזה משאבים ניתן להגביל בresource group ואילו סוגי הגבלות ?
+
+ניתן להגביל cpu שזה בעצם cpu time בתווך זמן מסוים,memory, כמות שאילתות שרצות במקביל, הגודל של הqueue של הqueries.
+
+5. מה זה system catalog ואיך מוסיפים קטלוג ?
+
+ניתן להוסיף קטלוג ישירות דרך trino עם SQL syntax כלומר פשוט על ידי פקודת CREATE CATALOG
+catalog_name
+USING connector_name
+
+הsystem הוא connector שמחזיק מידע על הcluster trino שרץ.
+והוא נגיש מהקטלוג בשם system.
+
+6. הגבלת גישה בtrino
+
+ניתן להגדיר access control למשל file access control
+כלומר ניתן להגדיר בקובץ JSON את ההרשאות למידע למשל גישה לקטלוגים, סכימות וטבלאות, כאשר ניתן לקנפג רק אופציות מסויימות למשל עבור DROP בדרך כלל צריך הרשאת all.
+או למשל הרשאות של הרצת queries ממש.
+
+7. כמה אחוז מהmemory מומלץ להקצות לJVM ?
+
+בין 70 ל85 אחוז מכמות הזיכרון.
+
+8. למה trino gateway צריך DB ?
+
+הוא שומר שם בגדול גם את הqueries האחרונים
+וגם את המידע על כל הrouting groups שיש לנו.
+
+9. איך מוסיפים חוקים לgateway ?
+
+אפשר או באמצעות קובץ YAML ולהגדיר בו את החוקים, או באמצעות בקשת REST לgateway.
+אלו הדרכים הנאיביות, אם משתמשים בexternal routing service, ניתן להגדיר לוגיקות יותר מסובכות למשל שמירת states.
+
+10. איזה דרכים יש לעשות load balancing מעבר לRR וstochastic ?
+
+אפשר לעשות באמצעות adaptive כלומר לשלוח בקשות לcluster הכי פחות עמוס מה שמגביר את הסיכוי שהשאילתה תצליח
+
+11. מה זה hash join, broadcast join, join hints
+
+hash join - לוקחים את אחת הטבלאות, בדרך כלל הקטנה יותר ומחשבים לה hash, על העמודה לפיה עושים את הJoin.
+חשוב שהjoin יהיה על equality.
+לאחר מכן מכניסים כל שורה מהטבלה הקטנה לhash table.
+מחשבים hash על כל מפתח מהטבלה השניה, ואם הוא מופיע בhash table משאירים אותו.
+
+broadcast join - כשיש טבלה מספיק קטנה כך שהיא יכולה להיות מוכלת כולה בזיכרון של כל worker ואז הjoin מתבצע הרבה יותר מהר.
+
+join hints - זה סוג של דגל שנותנים לsession שמשפיע על join strategy.
+כלומר איך לממש את הjoin.
+
+12. באיזה סוגי caching, hive connector משתמש ?
+
+מאחסן בהייב בנוסף, listing של טבלאות מסויימות.
+
+13. מה מספר הworkers האידיאלי ?
+
+המינימום בשביל שיעבוד בצורה סבירה ולאפשר שרידות מסויימת הוא 2.
+מעבר ל10 כבר יש overhead שמאט את הcoordinator יותר מידי
+
+14. מה עדיף worker חזק או coordinator חזק ?
+
+עדיף coordinator חזק לפחות במקרה של memory, כי הוא מאחסן גם את הstates של הworkers וגם את התוצאות במידה ואין spooling.
+
+15. איזה משאב coodinator צריך יותר, memory או cpu ?
+
+כנראה שיותר memory, כיוון שהוא מקבל המון הודעות למשל heartbeats ובקשות, אבל אין לו חישובים מאוד אינטנסיביים מדי למרות שהוא עדיין מחשב דברים למשל plan
+אבל עדיין לדעתי, המשאב העיקרי שצריך הוא memory.
+
+16. הרבה workers מול workers חזקים
+
+תלוי בכמות הworkers, אם זה cluster קטן שגדל לאט, עדיף לבחור כמה workers חזקים כדי למנוע overhead של תחזוק כמות גדולה של שרתים.
+לעומת זאת עם זה cluster גדול, שגדל בקצב גבוה, עדיף לבחור הרבה workers כדי לאפשר מקביליות גבוהה יותר ועמידות גבוהה יותר.
+
+17. איזה מידע וכלים trino ui מספק ?
+
+ניתן לראות בUI הרבה מידע על הqueries למשל query id, השאילתה עצמה, כמה אחוז הסתיים כבר, מי ומה יצר את השאילתה.
+ביחד עם הquery stateועם עוד שאילתות שהסתיימו לאחרונה.
+
+18. איך היית מציע ללקוח לתחקר שאילתה שנתקעה ?
+
+למשל להשתמש בexplain או explain analyze בשביל לראות מה קרה לא בסדר בשאילתה ולנסות להבין מהexecution plan
+ולבדוק האם המידע מחולק באמת בצורה טובה ברמת הdata source
+למשל מפורטש נכון ובפורמט קבצים מהיר למשל parquet ולא csv.
+
+19. Explain, Explain Analyze, analyze
+
+Explain - פונקציה שמחזירה את הexecution plan של השאילתה
+
+Explain Analyze - הוא גם מבצע את השאילתה וגם מחזיר את הdistributed execution plan
+עם הזמנים שלקחו בפועל
+
+Analyze - מחזיר סטטיסטיקות על טבלאות ועמודות בשביל טבלה מסויימת.
+
+20. אילו יתרונות/חסרונות הJVM מאפשר לtrino ?
+
+הJMV נותן את היתרון של הרצה ללא תלות במערכת הפעלה וחומרה. לעומת זאת התפעול שלו יכול לגרום לoverhead למשל דליפות זיכרון וgarbage collection
 
 ### 🔄 Alternatives
 
