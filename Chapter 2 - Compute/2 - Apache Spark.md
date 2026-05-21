@@ -23,6 +23,44 @@ Think through the following questions; by answering them you’ll touch every ma
 
 1. **Spark Architecture & Execution:** what are the main components of spark? what is the role of each component? what are their roles? what is the difference between a transformation and an action? how does spark achieve fault tolerance? what is lazy execution in spark? go over [this](assets/where_do_i_run.py) and for each line, comment where it runs.
 
+יש כמה רכיבים עיקריים בארכיטקטורה של spark:
+
+Driver - התהליך שמריץ את הmain ויוצר את הspark context כאשר הspark context מקביל לsession.
+
+Cluster manager - ישות חיצונית (כמו YARK או K8S) שמטרתה להקצות משאבים על הcluster.
+
+Worker node - כל שרת שיכול להריץ את הקוד של האפליקציה בcluster.
+
+Executor - התהליך שרץ על worker node ומריץ בפועל את האפליקציה.
+
+Task - יחידת עבודה שנשלחת לexecutor
+
+Job - יחידה של כמה Tasks שמרכיבים פעולת Spark למשל save, collect
+
+Stage - מקביל לstage בTrino, כל Job מחולק לכמה stages שכל אחד מכיל כמה Tasks.
+
+RDD - Resilient Distributed Dataset - זה אוסף ללא סדר של של אובייקטי scala/java שמבוזרים על גבי הcluster. כל הפעולות שמתבצעות על זה הן פעולות JVM.
+יש אכיפת טיפוסים חזקה.
+יכולות לקרות הרבה בעיות, במיוחד אם spark לא יודע לעשות על המחלקות והפונקציות של הJVM, SerDes.
+
+Dataframe - בא אחרי RDD ושונה ממנו בכך שמתייחסים למידע כטבלה כך שפעולות כמו למשל פונקציות SQL יכולות להיות מופעלות עליו. אין טיפוסים בכלל מה שיכול לגרום לבעיות ושגיאות בזמן ריצה.
+היתרונות העיקריים הם הפורמט הטבלאי והעובדה שלא צריך לעשות SerDes לשורה שלמה אם הפורמט שהמידע נשמר בו הוא columnar אז אפשר לקחת רק שורות ספציפיות.
+
+Dataset - שיפור של Dataframe שמביא קצת אכיפת טיפוסים אלו בעצם Dataframes שמשוייך להם סוג של אובייקט encoder שמקושר למחלקת Java ואז spark יכול לבדוק את הסכימה לפני שהוא מריץ את הקוד
+בפועל אין אכיפת טיפוסים ממש חזקה וברוב הפעולות נתעלם מהטיפוס אבל זה עדיין שיפור כי נכשל כאשר נפרש את הDAG ולא בזמן העיבוד עצמו.
+באופן כללי זה הטיפוס שיש עליו הכי הרבה אופטימציות 
+
+Transformation - פעולות שמתבצעות על אובייקטים של Spark. ויוצרים אובייקט חדש מהקיים למשל Map.
+הtranformations קורות בצורה lazy כלומר לא קורות בפועל עד שנקראת פעולת action.
+
+Action - פעולת spark על אובייקט שמחזירה ערך (די מקביל לreduce)
+בעצם זה מה שמטריג את כל התכנית.
+
+Lazy evaluation - בעצם החישוב לא קורה ושום דבר לא נטען לזיכרון עד שקורא action כלומר שצריך את המידע בפועל, ואז ניתן לאפטם את כל הpipeline של המידע.
+
+Fault tolerance - spark יודע להשתמש בDAG כך שאם פעולה או executor נכשל הוא ידע להפעיל מחדש את הDAG רק על החלק הספציפי שאבד
+ניתן בנוסף לשמור את הRDD באחסון פרסיסטנטי.
+
 2. **Spark Planning & Optimization:** Logical vs Physical Planning: Walk through the transition from Logical Plan to Physical Plan; What is the fundamental difference between Rule-Based (RBO) and Cost-Based Optimization (CBO), what are the common kinds of optimizations used? What is the AQE? Why is running ANALYZE TABLE recommended for performant CBO? and what is whole-stage code generation?
 
 3. **Spark Shuffle & Joins:** Compare the different kind of joins, and when will spark use each? how can we tell spark to prefer one over the other? what is join reordering? and why is "broadcasting" considered a high-risk, high-reward optimization? What is a _Narrow_ transformation, and _Wide_ transformation? Why do some operations require shuffle? what exactly is written in shuffle?
