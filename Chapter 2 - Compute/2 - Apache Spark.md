@@ -63,9 +63,63 @@ Fault tolerance - spark יודע להשתמש בDAG כך שאם פעולה או 
 
 2. **Spark Planning & Optimization:** Logical vs Physical Planning: Walk through the transition from Logical Plan to Physical Plan; What is the fundamental difference between Rule-Based (RBO) and Cost-Based Optimization (CBO), what are the common kinds of optimizations used? What is the AQE? Why is running ANALYZE TABLE recommended for performant CBO? and what is whole-stage code generation?
 
+ההבדל בין logical לphysical plan, מאוד מזכיר את ההבדל בtrino.
+בlogical plan רק בונים את האבסטרקציה של כל הפעולות שאמורות להתבצע ואין הקשר של driver ו executors.
+לעומת זאת, הphysical plan מסבירה איך התכנית הלוגית תתבצע בפועל על הרכיבית הפיזים בcluster.
+
+בבחירת הlogical plan מתבצע הRBO כלומר מתבצעות מניפולציות על העץ של הפעולות על מנת לייעל אותן בצורה לוגית, כלומר ללא הקשר לסטטיסטיקות למשל predicate pushdown.
+
+בבחירת הphysical plan מתבצע הCBO.
+כלומר משתמשים בסטטיסטיקות כדי לקבוע אופטימיזציות שהן לא בהכרח דטרמיניסטיות למשל join reordering או אסטרטגיית join.
+
+הAQE הוא אופטימיזציה שקורית בזמן ריצה, כלומר לפי סטטיסטיקות והמידע בפועל.
+למשל החלפת אסטרטגיית join לbroadcast join.
+או איחוד של partitions קטנים כדי למנוע יותר מדי shuffles.
+
+הרצה של ANALYZE TABLE מעדכנת סטטיסטקות של טבלה, ולכן מייעלת את הCBO.
+
+הcatalyst עושה code generation כלומר הופך שאילתת SQL לJava Byte Code
+כדי למנוע overhead של interpretation.
+ובעצם לחסוך המון קריאות לפונקציות של הPipeline ולעשות הכל בפונקציה אחת ובכך גם לשפר אופטימיזציות של הJVM JIT.
+
 3. **Spark Shuffle & Joins:** Compare the different kind of joins, and when will spark use each? how can we tell spark to prefer one over the other? what is join reordering? and why is "broadcasting" considered a high-risk, high-reward optimization? What is a _Narrow_ transformation, and _Wide_ transformation? Why do some operations require shuffle? what exactly is written in shuffle?
 
+ יש תמיכה ב5 אלגוריתמי join בspark.
+ לא ארחיב יותר מדי על כל אחד כי הם מאוד דומים לאלגוריתמים בtrino.
+
+ * broadcast hash join - עושים broadcast ל dataset הקטן יותר ואז hash.
+ ניתן להשתמש רק עבור שוויון.
+ אם הdataset שעושים לו broadcast גדול מדי, נצרוך המון זכרון ונוכל לגרום לשגיאות OOM.
+
+ * shuffle hash join - מאוד דומה לקודם, רק עושים shuffle במקום broadcast.
+ שימושי בעיקר כאשר dataset גדול מכדי לעשות לו broadcast אבל צד אחד של הpartition מספיק קטן כדי לעשות hash.
+
+ * Shuffle Sort Merge Join - כמו הקודם, רק כאשר ממיינים את אחד הdatasets במקום לעשות hash.
+ שימושי כאשר הdatasets גדולים מכדי לשמור את הhash בזכרון.
+
+ * Broadcast Nested Loop Join - כמו broadcast, אבל עם nested loop שמאפשר Join שהוא לא שוויון.
+ 
+ * Cartesian Product Join - מאוד דומה לקודם, רק במקום broadcast, כל partition מרופלק לשאר הpartitions מהdataset השני בשביל join של לולאה כפולה.
+ זה האלגוריתם join הכי יקר.
+ ועדיף לא להשתמש בו, כי בעצם אין שום אופטימיזציה.
+
+ניתן להשתמש בjoin hints כדי להגיד לspark להשתמש בjoin strategy ספציפי.
+spark לא בהכרח ישתמש בjoin הזה כי הוא לא בהכרח נתמך.
+
+האסטרטגיה של broadcasting נחשבת high risk higs reward כיוון שבהנחה ויש מספיק זכרון, זהו הjoin הכי מהיר שכן כל הטבלה תמצא בmemory.
+מצד שני, אם הטבלה שעושים לה broadcast גדולה מדי, נקבל המון שגיאות OOM.
+
+Narrow Transformation - פעולות בהן כל partition של  output dataframe תלוי לכל היותר בpartition אחד של input dataframe.
+למשל map למיניהם.
+
+Wide Transformation - פעולות בהן partition של הoutput יכול להיות תלוי בכמה partitions של הinput.
+ולכן יש צורך בshuffling כי הפעולה צריכה מידע מכמה partitions למשל groupby, joins.
+
+בפועל בshuffle, המדיע שזז הוא רשומות על מנת לגרום לpartition חדש.
+
 4. **Tungsten & Resources in Spark:** What is an RDD? Why did Spark move away from RDDs in favor of DataFrames/Datasets? Explain how Tungsten uses off-heap memory to avoid Garbage Collection pauses. Why is it a bad idea to give one executor a lot of resources (the "Fat Executor" problem)? What is the difference between Execution/Storage memory and the overhead memory? What happens when a task exceeds its allotted execution memory?
+
+
 
 5. **Spark Skew, Partitioning & Caching:** What is data skew? how can it be solved? what is the difference between `repartition(n)` and `coalesce(n)`? What are the spark `StorageLevel`s? what is the difference between `cache` and `persist`? why are udf's (expecially in python) bad? how does spark solve the serde bottleneck with udf's?
 
