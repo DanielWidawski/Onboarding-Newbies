@@ -1,15 +1,19 @@
 # Spark Fundamentals:
+
 ## Overview
+
 This section will go over the fundamentals of _apache spark_.
 
 **We will focus on general concepts such as the spark architecture, optimizations, caching and data geometry.**
 
 ## Goals
+
 - Develop a foundational understanding of how scheduling is done.
 - Learn the common terminology used by most schedulers.
 - Practice planning a self-study day and estimating time for learning.
 
 :warning: **Note:**
+
 - This is a self-study day. Independence and time management are essential.
 - Many newcomers struggle with self-study; take a moment to plan your day and stick to it.
 - Understand the **big picture** of each concept. If you can't explain it, you probably haven't learned it.
@@ -48,7 +52,7 @@ Dataframe - בא אחרי RDD ושונה ממנו בכך שמתייחסים למ
 
 Dataset - שיפור של Dataframe שמביא קצת אכיפת טיפוסים אלו בעצם Dataframes שמשוייך להם סוג של אובייקט encoder שמקושר למחלקת Java ואז spark יכול לבדוק את הסכימה לפני שהוא מריץ את הקוד
 בפועל אין אכיפת טיפוסים ממש חזקה וברוב הפעולות נתעלם מהטיפוס אבל זה עדיין שיפור כי נכשל כאשר נפרש את הDAG ולא בזמן העיבוד עצמו.
-באופן כללי זה הטיפוס שיש עליו הכי הרבה אופטימציות 
+באופן כללי זה הטיפוס שיש עליו הכי הרבה אופטימציות
 
 Transformation - פעולות שמתבצעות על אובייקטים של Spark. ויוצרים אובייקט חדש מהקיים למשל Map.
 הtranformations קורות בצורה lazy כלומר לא קורות בפועל עד שנקראת פעולת action.
@@ -84,24 +88,24 @@ Fault tolerance - spark יודע להשתמש בDAG כך שאם פעולה או 
 
 3. **Spark Shuffle & Joins:** Compare the different kind of joins, and when will spark use each? how can we tell spark to prefer one over the other? what is join reordering? and why is "broadcasting" considered a high-risk, high-reward optimization? What is a _Narrow_ transformation, and _Wide_ transformation? Why do some operations require shuffle? what exactly is written in shuffle?
 
- יש תמיכה ב5 אלגוריתמי join בspark.
- לא ארחיב יותר מדי על כל אחד כי הם מאוד דומים לאלגוריתמים בtrino.
+יש תמיכה ב5 אלגוריתמי join בspark.
+לא ארחיב יותר מדי על כל אחד כי הם מאוד דומים לאלגוריתמים בtrino.
 
- * broadcast hash join - עושים broadcast ל dataset הקטן יותר ואז hash.
- ניתן להשתמש רק עבור שוויון.
- אם הdataset שעושים לו broadcast גדול מדי, נצרוך המון זכרון ונוכל לגרום לשגיאות OOM.
+- broadcast hash join - עושים broadcast ל dataset הקטן יותר ואז hash.
+  ניתן להשתמש רק עבור שוויון.
+  אם הdataset שעושים לו broadcast גדול מדי, נצרוך המון זכרון ונוכל לגרום לשגיאות OOM.
 
- * shuffle hash join - מאוד דומה לקודם, רק עושים shuffle במקום broadcast.
- שימושי בעיקר כאשר dataset גדול מכדי לעשות לו broadcast אבל צד אחד של הpartition מספיק קטן כדי לעשות hash.
+- shuffle hash join - מאוד דומה לקודם, רק עושים shuffle במקום broadcast.
+  שימושי בעיקר כאשר dataset גדול מכדי לעשות לו broadcast אבל צד אחד של הpartition מספיק קטן כדי לעשות hash.
 
- * Shuffle Sort Merge Join - כמו הקודם, רק כאשר ממיינים את אחד הdatasets במקום לעשות hash.
- שימושי כאשר הdatasets גדולים מכדי לשמור את הhash בזכרון.
+- Shuffle Sort Merge Join - כמו הקודם, רק כאשר ממיינים את אחד הdatasets במקום לעשות hash.
+  שימושי כאשר הdatasets גדולים מכדי לשמור את הhash בזכרון.
 
- * Broadcast Nested Loop Join - כמו broadcast, אבל עם nested loop שמאפשר Join שהוא לא שוויון.
- 
- * Cartesian Product Join - מאוד דומה לקודם, רק במקום broadcast, כל partition מרופלק לשאר הpartitions מהdataset השני בשביל join של לולאה כפולה.
- זה האלגוריתם join הכי יקר.
- ועדיף לא להשתמש בו, כי בעצם אין שום אופטימיזציה.
+- Broadcast Nested Loop Join - כמו broadcast, אבל עם nested loop שמאפשר Join שהוא לא שוויון.
+
+- Cartesian Product Join - מאוד דומה לקודם, רק במקום broadcast, כל partition מרופלק לשאר הpartitions מהdataset השני בשביל join של לולאה כפולה.
+  זה האלגוריתם join הכי יקר.
+  ועדיף לא להשתמש בו, כי בעצם אין שום אופטימיזציה.
 
 ניתן להשתמש בjoin hints כדי להגיד לspark להשתמש בjoin strategy ספציפי.
 spark לא בהכרח ישתמש בjoin הזה כי הוא לא בהכרח נתמך.
@@ -109,7 +113,7 @@ spark לא בהכרח ישתמש בjoin הזה כי הוא לא בהכרח נת�
 האסטרטגיה של broadcasting נחשבת high risk higs reward כיוון שבהנחה ויש מספיק זכרון, זהו הjoin הכי מהיר שכן כל הטבלה תמצא בmemory.
 מצד שני, אם הטבלה שעושים לה broadcast גדולה מדי, נקבל המון שגיאות OOM.
 
-Narrow Transformation - פעולות בהן כל partition של  output dataframe תלוי לכל היותר בpartition אחד של input dataframe.
+Narrow Transformation - פעולות בהן כל partition של output dataframe תלוי לכל היותר בpartition אחד של input dataframe.
 למשל map למיניהם.
 
 Wide Transformation - פעולות בהן partition של הoutput יכול להיות תלוי בכמה partitions של הinput.
@@ -119,12 +123,152 @@ Wide Transformation - פעולות בהן partition של הoutput יכול לה�
 
 4. **Tungsten & Resources in Spark:** What is an RDD? Why did Spark move away from RDDs in favor of DataFrames/Datasets? Explain how Tungsten uses off-heap memory to avoid Garbage Collection pauses. Why is it a bad idea to give one executor a lot of resources (the "Fat Executor" problem)? What is the difference between Execution/Storage memory and the overhead memory? What happens when a task exceeds its allotted execution memory?
 
-
+המבנים RDD, dataframe, dataset וההבדלים ביניהם הוסברו בפירוט בשאלה הראשונה.
+בקשר לTungsten, הזכרון מוקצה באופן ידני
 
 5. **Spark Skew, Partitioning & Caching:** What is data skew? how can it be solved? what is the difference between `repartition(n)` and `coalesce(n)`? What are the spark `StorageLevel`s? what is the difference between `cache` and `persist`? why are udf's (expecially in python) bad? how does spark solve the serde bottleneck with udf's?
 
+## Q&A
+
+1. 3 diffs, spark vs pandas
+
+spark מבוזר לעומת pandas שקורה במכונה אחת.
+pandas הוא single threaded ולכן הרבה יותר קשה לעשות scale
+spark משתמש בlazy evaluation לעומת pandas, שלא.
+
+2. \** polars
+3. usecase of spark/pandas/polars
+
+pandas - רלוונטי למשימות קטנות לוקאלית כאשר מעדיפים נוחות 
+
+4. spark submit
+
+פקודת CLI שדרכה מריצים תהליכי spark.
+כלומר נותנים בפקודה את כל הפרמטרים הדרושים, למשל הכתובת של ה Resource Manager, השם של האפליקציה, הjars של האפליקציה, הdeploy mode, resources של הרכיבים ועוד.
+
+5. \* definity.ai
+6. 3 transformers, 3 actions
+
+transformations
+ * map - מפעיל פונקציה על כל איבר בdataset ומחזיר RDD חדש אחרי הפעלת הפונקציה על כל איבר.
+ * filter - מחזיר RDD חדש מפולטר כלומר רק עם הערכים שהוחזר עליהם True מהפרדיקט.
+ * repartition - עושה shuffle לדאטא רנדומלית על מנת ליצור את מספר הpartitions הנתון.
+
+actions
+ * collect - מחזיר מערך של האיברים בdataset
+ * count - מחזיר את כמות הערכים בdataset (כמות שורות בdataframe וכמות ערכים בRDD)
+ * first - מחזיר את האיבר הראשון מהdatset.
+
+7. RDD, Dataframe, Dataset
+
+RDD הוא האבסטרקציה הבסיסית ביותר בSpark והוא בעצם אוסף immutable וpartitioned של איברים שניתן לבצע עליהם פעולות במקביל.
+
+Dataframe הוא דו מימדי כלומר המידע מסודר בתוך עמודות עם שמות.
+בפועל זה בתוך אובייקט שנקרא Row
+אין type safety בכלל.
+יש אופטימציות של הcatalyst.
+
+Dataset הוא סוג של הרחבה של Dataframe אם יותר type safety כלומר יש encoder שמטרתו לעשות Serdes, כלומר ניתן להשתמש בcustom types למשל מחלקות java.
+
+8. lifecycle of spark proccess
+
+הלקוח שולח את הקוד לcluster באמצעות spark submit.
+לאחר שהCluster Manager קיבל את הבקשה, הוא יוצר driver (תלוי deploy mode) הdriver מתחיל לבצע את הקוד שלנו.
+יוצרים spark session, שמטרתו להיות אחראי על איתחול הSpark Cluster.
+בנוסף הוא אחראי על תקשורת עם הcluster manager על מנת ליצור executors.
+עוד על spark session בהמשך.
+כעת האפליקציה רצה על הקלאסטר כלומר כל executor מבצע חלק מהקוד ומדווח לdriver וכו'.
+לאחר שהתהליך הסתיים, הdriver מבצע exit ולאחר מכן, הcluster manager סוגר את ה executors.
+
+9. האם transformation הוא interface ?
+
+לא, הוא לא interface.
+
+10. מה הכלל אצבע בחלוקה לstages ?
+
+אוסף של transformations עד שצריך shuffle.
+
+11. מתי stages יכולים לרוץ במקביל ?
+
+כל עוד אין להם תלויות אחד בשני.
+
+12. מה זה Task ?
+
+פעולת העיבוד שקורית בפועל.
+task היא פעולה שקורית בפועל על המידע, למשל טרנספורמציות למיניהן או count וקריאת מידע.
+
+13. מה זה repartition ומה האלטרנטיבה ?
+
+זאת פקודה לחילוק מחדש של הdataset, למספר partitions כנתון בפקודה, גורם לshuffling בין כל הpartitions על מנת להביא לגודל partitions אחיד.
+ניתן להשתמש בcoalesce רק על מנת להוריד את מספר הpartitions.
+הוא מאחד partitions ביחד ולכן זז בפועל פחות מידע, ואילו הpartitions החדשים יהיו כנראה פחות מאוזנים, אם הpartitions המקוריים לא מאוזנים.
+
+14. spark session vs spark context 
+
+
+
+15. \* fault tolerance
+    *  מה קורה אם driver נופל
+    * מה קורה אם executor נופל
+16. מה ההבדל בפועל בין spark לtrino ?
+
+יש כמה הבדלים, לא מאוד מהותיים מבחינת ארכיטקטורה.
+spark מאופטם לשאילתות יותר custom כיוון שאין coupling לSQL אלא ניתן לרשום פונקציות אחרות ולהשתמש ביותר פונקציונליות.
+ולכן יותר מאופטם לעיבודים גדולים בדרך כלל יש יותר 
+cluster spark מותאם ליוזר אחד מה שמאפטם על שאילתות יותר ארוכות וbatch כיוון שהoverhead של עלייה של cluster יכול להיות לא שווה את זה עבור שאילתות פשוטות.
+ולכן עבור שאלות פשוטות שדורשות תשובה יחסית מהירה - adhoc עדיף להשתמש בtrino.
+
+17. \* shuffle services
+18. spark web ui
+
+זה UI של spark שרץ ומציג מידע על האפליקציית spark.
+יש כמה חלוניות.
+בחלונית של הjobs ניתן לראות מידע על ה jobs שרצים, למשל מתי התחילו מי הריץ timeline של events שקשורים להוספה והורדה של executors.
+ויזואליזציה של DAG, רשימה של stages ועוד.
+בדומה יש חלונית של stages עם מידע על הstage, ויזאוליזציה DAG של הstage,
+מידע על כל הtasks שרצים עם מטריקות עליהן 
+ניתן לראות את הקונפיגורציות בEnvironment Tab.
+מידע על Executors, משאבים ניצולת מידע על shuffling וזמן GC.
+
+## 2nd Q&A
+
+1. איך polars הוא multithreaded אם יש נעילה על כמות הthreads בpython ?
+
+polars משתמש בספרייה multiproccessing על מנת לגרום למקביליות בpython
+
+2. איך קוד pyspark מתורגם לscala ?
+
+משתמשים בסיפריית py4j על מנת לדבר עם הJVM ובפרט לדבר ב"python" עם הJVM.
+
+3. מה זה apache arrow
+
+זה data format קולומנרי שנשמר בmemory,
+ומשתמשים בו בspark על מנת להעביר מידע בין תהליכי python לתהליכי spark.
+
+4. בspark-submit עם local deploy mode, איך הdriver רץ ? בקונטיינר ? בJVM שונה ?
+
+רץ בתהליך JVM לא בקונטיינר.
+
+5. מצב שלישי של deploy mode (הייעוד העיקרי שלו הוא לtests)
+6. ארגומנטים לshow ?
+7. מה קורה בterminal כשמריצים spark-submit
+8. מה זה predicate pushdown
+9. האם spark יזיז repartition להתחלה ?
+10. האם עושים decleration לtype של RDD בJava/scala ?
+11. למה בpython אין Dataset ?
+12. למה צריך dataframe
+13. האם ניתן לחלק מידע ספציפי לexecutor ספציפי ?
+14. תהליך pyspark, שליטה בexecutors באמצעות conf
+15. איך spark יודע כמה executors להקים ?
+האם ניתן להגדיר ? אם spark בוחר אז איך הוא יודע כמה צריך ?
+16. האם spark מקים מחדש executor שקיבל OOM/נפל ?
+ואם אקטיבית הורדתי אותו האם spark יחזיר אותו ?
+17. איך spark מתנהל עם שגיאת הרשאות בזמן ריצה ?
+18. מה היחידת מידה של מעבד בspark ?
+19. כמה executors יופיעו בspark UI עבור כמות מבוקשת כלשהי ?
 
 ### Real-World Context
+
 Rather than focusing on one technology, think about how these ideas show up in distributed processing frameworks, how they are used by other procerssing frameworks and what are the core concepts of processing.
 
 ## 🔄 Alternatives
@@ -143,16 +287,20 @@ Assignment: Based on your research and understanding of the department's pipelin
     Requirement: Describe a real-world scenario (e.g., a specific client requirement) where this technology is the optimal solution.
 
 ## Wrapping Up :trophy:
+
 Discuss your answers and any areas of confusion with your mentor. Reflect on how these general concepts will help when you later write code and help clients.
 
 ## Additional Topics from Review
+
 - A deep dive into spark internals: what are other optimizations that are implemented in spark? what is java off-heap memory? how does spark's memory allocation work?
 - What are other well known processing frameworks? what are the use cases spark meets? when should I NOT use spark?
 
 ## Action Items
+
 - Review your notes and identify topics you want to explore deeper.
 - Collect a list of real-world use cases for apache spark.
 - Prepare questions for the upcoming mentor Q&A session.
 
 ## Recommemded Resources
+
 - [Apache Spark Documentation](https://spark.apache.org/documentation.html)
