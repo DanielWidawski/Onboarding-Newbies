@@ -136,10 +136,10 @@ spark מבוזר לעומת pandas שקורה במכונה אחת.
 pandas הוא single threaded ולכן הרבה יותר קשה לעשות scale
 spark משתמש בlazy evaluation לעומת pandas, שלא.
 
-2. \** polars
+2. \*\* polars
 3. usecase of spark/pandas/polars
 
-pandas - רלוונטי למשימות קטנות לוקאלית כאשר מעדיפים נוחות 
+pandas - רלוונטי למשימות קטנות לוקאלית כאשר מעדיפים נוחות
 
 4. spark submit
 
@@ -150,14 +150,16 @@ pandas - רלוונטי למשימות קטנות לוקאלית כאשר מעד
 6. 3 transformers, 3 actions
 
 transformations
- * map - מפעיל פונקציה על כל איבר בdataset ומחזיר RDD חדש אחרי הפעלת הפונקציה על כל איבר.
- * filter - מחזיר RDD חדש מפולטר כלומר רק עם הערכים שהוחזר עליהם True מהפרדיקט.
- * repartition - עושה shuffle לדאטא רנדומלית על מנת ליצור את מספר הpartitions הנתון.
+
+- map - מפעיל פונקציה על כל איבר בdataset ומחזיר RDD חדש אחרי הפעלת הפונקציה על כל איבר.
+- filter - מחזיר RDD חדש מפולטר כלומר רק עם הערכים שהוחזר עליהם True מהפרדיקט.
+- repartition - עושה shuffle לדאטא רנדומלית על מנת ליצור את מספר הpartitions הנתון.
 
 actions
- * collect - מחזיר מערך של האיברים בdataset
- * count - מחזיר את כמות הערכים בdataset (כמות שורות בdataframe וכמות ערכים בRDD)
- * first - מחזיר את האיבר הראשון מהdatset.
+
+- collect - מחזיר מערך של האיברים בdataset
+- count - מחזיר את כמות הערכים בdataset (כמות שורות בdataframe וכמות ערכים בRDD)
+- first - מחזיר את האיבר הראשון מהdatset.
 
 7. RDD, Dataframe, Dataset
 
@@ -203,18 +205,16 @@ task היא פעולה שקורית בפועל על המידע, למשל טרנ�
 ניתן להשתמש בcoalesce רק על מנת להוריד את מספר הpartitions.
 הוא מאחד partitions ביחד ולכן זז בפועל פחות מידע, ואילו הpartitions החדשים יהיו כנראה פחות מאוזנים, אם הpartitions המקוריים לא מאוזנים.
 
-14. spark session vs spark context 
-
-
+14. spark session vs spark context
 
 15. \* fault tolerance
-    *  מה קורה אם driver נופל
-    * מה קורה אם executor נופל
+    - מה קורה אם driver נופל
+    - מה קורה אם executor נופל
 16. מה ההבדל בפועל בין spark לtrino ?
 
 יש כמה הבדלים, לא מאוד מהותיים מבחינת ארכיטקטורה.
 spark מאופטם לשאילתות יותר custom כיוון שאין coupling לSQL אלא ניתן לרשום פונקציות אחרות ולהשתמש ביותר פונקציונליות.
-ולכן יותר מאופטם לעיבודים גדולים בדרך כלל יש יותר 
+ולכן יותר מאופטם לעיבודים גדולים בדרך כלל יש יותר
 cluster spark מותאם ליוזר אחד מה שמאפטם על שאילתות יותר ארוכות וbatch כיוון שהoverhead של עלייה של cluster יכול להיות לא שווה את זה עבור שאילתות פשוטות.
 ולכן עבור שאלות פשוטות שדורשות תשובה יחסית מהירה - adhoc עדיף להשתמש בtrino.
 
@@ -226,7 +226,7 @@ cluster spark מותאם ליוזר אחד מה שמאפטם על שאילתות
 בחלונית של הjobs ניתן לראות מידע על ה jobs שרצים, למשל מתי התחילו מי הריץ timeline של events שקשורים להוספה והורדה של executors.
 ויזואליזציה של DAG, רשימה של stages ועוד.
 בדומה יש חלונית של stages עם מידע על הstage, ויזאוליזציה DAG של הstage,
-מידע על כל הtasks שרצים עם מטריקות עליהן 
+מידע על כל הtasks שרצים עם מטריקות עליהן
 ניתן לראות את הקונפיגורציות בEnvironment Tab.
 מידע על Executors, משאבים ניצולת מידע על shuffling וזמן GC.
 
@@ -250,19 +250,63 @@ polars משתמש בספרייה multiproccessing על מנת לגרום למק�
 רץ בתהליך JVM לא בקונטיינר.
 
 5. מצב שלישי של deploy mode (הייעוד העיקרי שלו הוא לtests)
+
+המצב השלישי אם אפשר לקרוא לו כזה, הוא stand alone
+כלומר הרצה לבד של כל הworkers כלומר הexecutors והmaster כלומר הdriver ללא YARN או K8S.
+
 6. ארגומנטים לshow ?
+
+דבר ראשון, show היא פקודה רק על dataframe/dataset.
+
+n: integer - כמות האיברים להראות מהdataframe
+
+trancate: bool or int - עם יש ערך מספרי, חותך מחרוזות עם ערכים גדולים מהמספר.
+default הוא 20 אם יש true.
+
+vertical: bool - אם true, מציג את הdataframe בצורה אנכית.
+
 7. מה קורה בterminal כשמריצים spark-submit
+
 8. מה זה predicate pushdown
+
+אופטימיזציה ש"דוחפת" את הפילטר לdatasource על מנת לשלוף לspark כמה שפחות מידע.
+
 9. האם spark יזיז repartition להתחלה ?
+
+לא, אין אופטימיזציה שתזיז פקודה של repartition
+
 10. האם עושים decleration לtype של RDD בJava/scala ?
+
+בjava כן, בscala לא.
+
 11. למה בpython אין Dataset ?
+
+כיוון שpython היא לא typed ואילו dataset הוא כן,
+אין סיבה שיהיה dataset אם אין typing, מאחורי הקלעים, dataframe הוא dataset של Rows.
+
 12. למה צריך dataframe
+
 13. האם ניתן לחלק מידע ספציפי לexecutor ספציפי ?
+
+כן זה אפשרי בscala לפחות. ניתן להגדיר RDD עם preferred location למשל בעזרת הפעולה makeRDD.
+זה אפשרי גם בpython אבל לא בצורה native אלא על ידי גישה לJVM.
+ולאובייקטים של scala.
+
 14. תהליך pyspark, שליטה בexecutors באמצעות conf
+
+בגדול אפשר לקנפג את הגודל של הexecutors באמצעות הconf.
+(מינימום memory הוא 471859200 בתים)
+
 15. איך spark יודע כמה executors להקים ?
-האם ניתן להגדיר ? אם spark בוחר אז איך הוא יודע כמה צריך ?
+    האם ניתן להגדיר ? אם spark בוחר אז איך הוא יודע כמה צריך ?
+
+ניתן או לקנפג ישירות באמצעות spark.executor.instances
+או להשתמש בdynamicAllocation כלומר לקנפג spark.dynamicAllocation.enabled
+ואז spark יתאים את מספר הexecutors בהתאם לworkload בזמן ריצה.
+
 16. האם spark מקים מחדש executor שקיבל OOM/נפל ?
-ואם אקטיבית הורדתי אותו האם spark יחזיר אותו ?
+    ואם אקטיבית הורדתי אותו האם spark יחזיר אותו ?
+
 17. איך spark מתנהל עם שגיאת הרשאות בזמן ריצה ?
 18. מה היחידת מידה של מעבד בspark ?
 19. כמה executors יופיעו בspark UI עבור כמות מבוקשת כלשהי ?
