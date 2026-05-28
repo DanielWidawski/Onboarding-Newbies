@@ -137,9 +137,23 @@ pandas הוא single threaded ולכן הרבה יותר קשה לעשות scale
 spark משתמש בlazy evaluation לעומת pandas, שלא.
 
 2. \*\* polars
+
+זאת ספרייה לעיבוד מידע שכתובה בrust שהיא שפה מאוד מהירה ויעילה בזיכרון.
+היא משתמשת בעיבוד מקבילי וlazy evaluation מה שמאפשר אופטימיזציות רבות.
+היא בנויה למחשב אחד.
+האחסון של המידע בזיכרון הוא בפורמט arrow ולכן columnar מה שמאפשר אגרגציות מהירות ושימוש בSIMD.
+
 3. usecase of spark/pandas/polars
 
-pandas - רלוונטי למשימות קטנות לוקאלית כאשר מעדיפים נוחות
+pandas - רלוונטי למשימות קטנות לוקאלית כאשר מעדיפים נוחות.
+למשל רוב הספריות יכירו קודם pandas, והיא כביכול הסטנדרט.
+
+polars - בנוי למהירות, משתמש בmultithreaded על ידי זה שהוא רשום בrust.
+ומשתמש בlazy evaluation ובarrow
+אבל בנוי עבור מכונה אחת
+
+spark - שימושי בעיקר עבור מידע גדול, כך שהoverhead של הdeployment והאופטימיזציות משתלמות.
+מאפשר חישוב מבוזר ויותר durability.
 
 4. spark submit
 
@@ -147,6 +161,11 @@ pandas - רלוונטי למשימות קטנות לוקאלית כאשר מעד
 כלומר נותנים בפקודה את כל הפרמטרים הדרושים, למשל הכתובת של ה Resource Manager, השם של האפליקציה, הjars של האפליקציה, הdeploy mode, resources של הרכיבים ועוד.
 
 5. \* definity.ai
+
+זאת טכנולוגיה מבוססת agents שחיים בתוך pipeline ומנטרים אחר הspark context.
+כך ניתן לקבל מידע על ניצולת משאבים retries או reruns.
+בנוסף נקבל את הסיבות לכשלונות או bottle necks והאטות והמלצות איך לייעל.
+
 6. 3 transformers, 3 actions
 
 transformations
@@ -207,9 +226,19 @@ task היא פעולה שקורית בפועל על המידע, למשל טרנ�
 
 14. spark session vs spark context
 
+בעצם הspark session הוא entry point אחיד לתכנית spark.
+הוא בעצם עוטף את הspark context ומאפשר גישה יותר נאטיבית לאובייקטים כמו הsql context וhive context.
+ובנוסף מאפשר גישה ואופציה ליצור אובייקטים מאופטמים כמו dataframe וdataset שאינם נגישים דרך הspark context.
+
 15. \* fault tolerance
     - מה קורה אם driver נופל
     - מה קורה אם executor נופל
+
+  אם הדרייבר נופל אז די נדפקנו וצריך להריץ את כל התהליך מחדש.
+
+  אם executor נופל, tasks עוברים לexecutors אחרים.
+  יש retry דיפולטי של 4 פעמים לכל task לפני שהתהליך קורס.
+
 16. מה ההבדל בפועל בין spark לtrino ?
 
 יש כמה הבדלים, לא מאוד מהותיים מבחינת ארכיטקטורה.
@@ -219,6 +248,16 @@ cluster spark מותאם ליוזר אחד מה שמאפטם על שאילתות
 ולכן עבור שאלות פשוטות שדורשות תשובה יחסית מהירה - adhoc עדיף להשתמש בtrino.
 
 17. \* shuffle services
+
+זה שירות חיצוני לspark שמאפשר לשמור מידע של shuffling במקום חיצוני כלומר executors רושמים מידע לדיסק והshuffle service מנגיש אותם לexecutors אחרים.
+וכך עם executor נופל לאחרי שרשם, המידע לאחר הshuffle לא נאבד.
+כלומר גם אם הexecutor יקום מחדש במקום אחר, המידע לא יאבד.
+
+בceleborn למשל רושמים את המידע לcluster celeborn.
+ואז בעצם כל executor רושם את המידע למקום אחד ולא מחלק אותו בין ewxecutors.
+כנ"ל עבור קריאות, קוראים ממקום אחד.
+לא אכנס יותר מידי לארכיטקטורה אבל הוא משתמש בmaster node ומשיג HA באמצעות ZK.
+
 18. spark web ui
 
 זה UI של spark שרץ ומציג מידע על האפליקציית spark.
@@ -235,6 +274,8 @@ cluster spark מותאם ליוזר אחד מה שמאפטם על שאילתות
 1. איך polars הוא multithreaded אם יש נעילה על כמות הthreads בpython ?
 
 polars משתמש בספרייה multiproccessing על מנת לגרום למקביליות בpython
+
+או משתמש בעובדה שהוא רשום בRust על מנת להשיג multithreaded.
 
 2. איך קוד pyspark מתורגם לscala ?
 
@@ -290,7 +331,7 @@ vertical: bool - אם true, מציג את הdataframe בצורה אנכית.
 
 12. למה צריך dataframe
 
-מעבר להצגה של המידע בפורמט טבלאי 
+מעבר להצגה של המידע בפורמט טבלאי
 בעצם זאת אבסטרקציה שנותנת למשתמשים לעבוד עם מה שהם מכירים בSQL וRDBMS ולהקל על השימוש שלהם.
 (הוא גם משתמש באופטימיזציות של ה catalyst).
 
@@ -319,7 +360,8 @@ vertical: bool - אם true, מציג את הdataframe בצורה אנכית.
 
 17. איך spark מתנהל עם שגיאת הרשאות בזמן ריצה ?
 
-
+בstandalone הוא חוסם ונופל ישר.
+(במצב cluster, תמיר חייב לי דמו, באופן כללי ברוב המקומות שעניתי רק על standalone זה מתצפית אישית שלא הספקתי/הצלחתי לסמלץ במצב cluster)
 
 18. מה היחידת מידה של מעבד בspark ?
 
@@ -333,13 +375,19 @@ vertical: bool - אם true, מציג את הdataframe בצורה אנכית.
 
 1. איזה סיבה יש לשים drivers/executors על nodes ספציפיים מעבר לשרידות של הדרייברים וdata locality בexecutors ?
 
+למשל בשביל חומרה ספציפית שקיימת על nodes ספציפיים כמו ssd או gpu.
+
 2. האם executors מודעים לזה שהם התנתקו מהדרייבר ?
 
+לפי מה שראיתי, לא.
+לאחר שעובר הtimeout של heartbeats, הdriver מטריג את הcluster manager לנקות את הexecutor אבל עד שזה קורה הוא עדיין רץ ולא מודע לזה.
 
+https://blog.devgenius.io/apache-spark-wtf-back-from-the-dead-970b6f61edf3
 
 3. האם הדרייבר יקרוס לאחר בעיות של Quota בK8S או שהוא יעבוד עם מה שיש לו, ומה כמות הretries עד שהוא יפסיק לבקש או יקרוס ?
 
-
+לפי נתי הוא יעבוד עם מה שיש לו
+אבל בגדול זאת הגדרה ברמת הk8s.
 
 4. איך אפשר לראות את הspark UI לאחר שהתהליך הסתיים (יש רכיב חיצוני) ?
 
@@ -355,7 +403,6 @@ vertical: bool - אם true, מציג את הdataframe בצורה אנכית.
 6. איך נראה הStorage בSpark UI (screenshot או תמונה) ?
 
 ![alt text](image.png)
-
 
 ### Real-World Context
 
