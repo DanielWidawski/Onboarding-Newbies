@@ -183,7 +183,7 @@ SparkJDBCOperator - משתמש ב SparkSubmitOperator על מנת לקרוא א�
 
 26. מה ההבדל בין hook לoperator ?
 
-בפרקטיקה, אפשר לממש hook עם operator, אבל hook מכמס את ההתחברות למקור החיצוני ומפשט את כל  הפיסטונים והופך את הקוד ליותר קריא.
+בפרקטיקה, אפשר לממש hook עם operator, אבל hook מכמס את ההתחברות למקור החיצוני ומפשט את כל הפיסטונים והופך את הקוד ליותר קריא.
 
 27. מה זה subdag ?
 
@@ -199,6 +199,29 @@ SparkJDBCOperator - משתמש ב SparkSubmitOperator על מנת לקרוא א�
 29. מה זה cluster policies ?
 
 כמו תנאים שאפשר להלביש על cluster כך שכל DAG או Task יהיו חייבים לעמוד בהם.
+
+## Extra Questions
+
+1. מה זה albemic ולמה צריך את זה ?
+
+זאת בעצם טכנולוגיה שמאפשרת לעקוב אחרי סכימה של DB בSQLAlchemy ונותנת לעשות מיגרציה בין גרסאות של הDB למשל הוספת עמודה ושינוי שם של טבלה.
+זה מאוד חשוב בairflow כי שדרוג של הimage יכול להשפיע על ההתנהגות של הDB וצריך אופציה לעשות rollback למצב של הDB ולא רק לimage.
+
+2. איפה callbacks רצים ?
+
+dag callbacks רצים בdag_processor.
+וcallbacks של task רצים בworkers.
+deadline callbacks רצים בexecutor אם הם sync ובtrigerrer אם הם async.
+
+3. מה הcritical sections בscheduler ? מה הscheduler עושה ? איך נראית הלולאה בscheduler ומה השלבים שלה ?
+
+הcritical section הוא החלק בלולאה של הscheduler שמשנה את הstate של TI ל queued כלומר הופך אותם נגישים לexecutors. חשוב לבצע את החלק הזה בcritical section כלומר עם locks על הDB כיוון שכחלק מהתהליך מקצים slots לtasks ולא נרצה לעקוף את הLimit.
+
+יש כמה חלקים ללולאה.
+החלק הראשון הוא יצירת DAG runs לכמות מסויימת (דיפולטית 10) של DAGS.
+החלק השני הוא לקחת כמות מסויימת (דיפולטית 20) של DAG runs ולנסות "לקדם" את המצב שלהם, למשל למשל להעביר TI לscheduled וDagRuns ל SUCCESS/FAILURE.
+
+ואז דרך הcritical section מעבירים TI למצב Queued מה שבפועל שולח אותם לexecutors.
 
 ### Real-World Context
 
