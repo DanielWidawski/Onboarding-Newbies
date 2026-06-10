@@ -1,10 +1,16 @@
 from fastapi import FastAPI
 import uvicorn
-from routers import orders
+from exceptions.handler import register_exception_handlers
+from routers import orders, menu
 
 app = FastAPI(title="Pizza Delivery API")
 
 app.include_router(orders.router)
+app.include_router(menu.router)
+
+register_exception_handlers(app)
+
+
 
 @app.get("/")
 def root():

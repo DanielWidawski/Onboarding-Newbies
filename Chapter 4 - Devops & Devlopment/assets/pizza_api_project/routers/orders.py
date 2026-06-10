@@ -5,14 +5,14 @@ from models import default_menu
 from orders.order_manager import OrderManager
 from orders.order_request import OrderRequest
 
-router = APIRouter()
+router = APIRouter(prefix="/orders")
 oreder_manager = OrderManager()
 
 @router.get("/menu")
 def get_menu():
     return default_menu
 
-@router.post("/orders")
+@router.post("/")
 def create_order(order: OrderRequest):
     """
     TODO: INCOMPLETE ENDPOINT!
