@@ -8,9 +8,6 @@ from orders.order_request import OrderRequest
 router = APIRouter(prefix="/orders")
 oreder_manager = OrderManager()
 
-@router.get("/menu")
-def get_menu():
-    return default_menu
 
 @router.post("/")
 def create_order(order: OrderRequest):

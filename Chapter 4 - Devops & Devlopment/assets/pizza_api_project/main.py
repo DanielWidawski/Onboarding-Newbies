@@ -10,8 +10,6 @@ app.include_router(menu.router)
 
 register_exception_handlers(app)
 
-
-
 @app.get("/")
 def root():
     return {"message": "Welcome to the Pizza API"}
