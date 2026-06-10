@@ -1,16 +1,16 @@
-from fastapi import APIRouter, HTTPException
-from models.pizza import OrderRequest 
-from db_handler.database_orm import save_order_to_db
+from fastapi import APIRouter
+
+from models import default_menu
+
+from orders.order_manager import OrderManager
+from orders.order_request import OrderRequest
 
 router = APIRouter()
+oreder_manager = OrderManager()
 
 @router.get("/menu")
 def get_menu():
-    return [
-        {"name": "Margherita", "price": 10.0},
-        {"name": "Pepperoni", "price": 12.5},
-        {"name": "Vegan", "price": 11.0}
-    ]
+    return default_menu
 
 @router.post("/orders")
 def create_order(order: OrderRequest):
@@ -21,4 +21,5 @@ def create_order(order: OrderRequest):
     3. Return a success message with the total price and an order ID.
     4. Handle cases where the pizza list is empty (raise 400 exception).
     """
+    oreder_manager.manage_order(order=order, menu=default_menu)
     pass

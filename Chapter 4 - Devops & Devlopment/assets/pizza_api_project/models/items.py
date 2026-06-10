@@ -1,20 +1,24 @@
-from pizza import PizzaItem
 
-class PizzaMargherita(PizzaItem):
-    NAME: str = "Margherita"
-    PRICE: float = 10.0
-    def __init__(self):
-        super().__init__(name=self.NAME, price=self.PRICE)
-        
-class PizzaPepperoni(PizzaItem):
-    NAME: str = "Margherita"
-    PRICE: float = 12.5
-    def __init__(self):
-        super().__init__(name=self.NAME, price=self.PRICE)
-        
+from pydantic import BaseModel
 
-class PizzaVegan(PizzaItem):
-    NAME: str = "Vegan"
-    PRICE: float = 11.0
+
+class Item(BaseModel):
+    name: str
+    price: float
+    def __hash__(self):
+        return hash(self.name)
+    
+    def __eq__(self, other):
+        return self.name == other.name
+    
+class PizzaMargherita(Item):
     def __init__(self):
-        super().__init__(name=self.NAME, price=self.PRICE)
+        super().__init__(name="Margherita", price=10.0)
+        
+class PizzaPepperoni(Item):
+    def __init__(self):
+        super().__init__(name="Pepperoni", price=12.5)
+        
+class PizzaVegan(Item):
+    def __init__(self):
+        super().__init__(name="Vegan", price=11.0)
