@@ -10,7 +10,7 @@ class BaseAppException(Exception):
         self,
         message: str,
         code: str,
-        status_code: int = 400,
+        status_code: int = 500,
         details: Optional[Dict[str, Any]] = None
     ):
         self.message = message
