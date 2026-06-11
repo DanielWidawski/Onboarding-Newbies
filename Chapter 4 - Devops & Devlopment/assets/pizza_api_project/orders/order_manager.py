@@ -1,12 +1,15 @@
 from uuid import UUID
 
-from db_handler.database_orm import save_order_to_db
+from db_handler.backend_store import BackendStore
+from db_handler import default_backend
 from models.menu import Menu
 from orders.order_request import OrderRequest
 
     
 
 class OrderManager:
+    backend_store: BackendStore = default_backend
+    
     def manage_order(self, order: OrderRequest, menu: Menu):
         total = self.calculate_order_total(order, menu)
         id = self.save_order(order)
@@ -19,4 +22,4 @@ class OrderManager:
         return total
     
     def save_order(self, order: OrderRequest) -> UUID:
-        return save_order_to_db(order)        
+        return self.backend_store.save_order(order)        

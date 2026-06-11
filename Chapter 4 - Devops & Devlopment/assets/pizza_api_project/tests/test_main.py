@@ -3,7 +3,6 @@ import unittest
 from fastapi.testclient import TestClient
 
 from unittest.mock import patch
-from db_handler.database_orm import save_order_to_db
 from exceptions.exceptions import ValidationError
 from main import app
 from orders.order_request import OrderRequest
@@ -25,7 +24,7 @@ class TestAPI(unittest.TestCase):
     # TODO: WRITE TESTS FOR THE POST ENDPOINT
     # ==========================================
 
-    @patch("routers.orders.OrderManager.save_order")
+    @patch("routers.orders.OrderManager.backend_store.save_order")
     def test_create_order_success(self, mock_save_to_db):
         mock_save_to_db.return_value = "12345"
         test_order = {"customer_name": "test", "item_names": ["Margherita"]}
