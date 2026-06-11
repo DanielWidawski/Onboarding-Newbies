@@ -23,12 +23,15 @@ class TestAPI(unittest.TestCase):
     # ==========================================
 
     # Example of what is needed:
-    # @patch('main.save_order_to_db')
-    # def test_create_order_success(mock_save_db):
-    #     # 1. Arrange: setup mock return value and payload
-    #     # 2. Act: send POST request to /orders
-    #     # 3. Assert: check status code, response data, and that mock was called
-    #     pass
+    @patch('db_handler.database_orm.save_order_to_db', return_value=True)
+    def test_create_order_success(self, mock_save_db):
+        # 1. Arrange: setup mock return value and payload
+        # 2. Act: send POST request to /orders
+        # 3. Assert: check status code, response data, and that mock was called
+        test_order = {"customer_name": "test", "item_names": ["Margherita"]}
+        response = client.post('/orders', json=test_order)
+        assert response.status_code == 300
+        
 
     def test_create_order_empty_list(self):
         """TODO: Test that sending an order with no pizzas returns a 400 error."""

@@ -1,3 +1,5 @@
+from uuid import UUID
+
 from db_handler.database_orm import save_order_to_db
 from models.menu import Menu
 from orders.order_request import OrderRequest
@@ -16,5 +18,5 @@ class OrderManager:
             total += item.price
         return total
     
-    def save_order(self, order: OrderRequest) -> int:
+    def save_order(self, order: OrderRequest) -> UUID:
         return save_order_to_db(order)        

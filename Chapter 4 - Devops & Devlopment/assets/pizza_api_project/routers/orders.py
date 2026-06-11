@@ -18,5 +18,5 @@ def create_order(order: OrderRequest):
     3. Return a success message with the total price and an order ID.
     4. Handle cases where the pizza list is empty (raise 400 exception).
     """
-    oreder_manager.manage_order(order=order, menu=default_menu)
-    pass
+    return oreder_manager.manage_order(order=order, menu=default_menu)
+        

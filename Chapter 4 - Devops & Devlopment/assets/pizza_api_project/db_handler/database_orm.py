@@ -1,7 +1,9 @@
+from uuid import UUID, uuid4
+
 from orders.order_request import OrderRequest
 
 
-def save_order_to_db(order_data: OrderRequest) -> bool:
+def save_order_to_db(order_data: OrderRequest) -> UUID:
     """
     Fake database function. 
     In a real app, this would save to Postgres/MongoDB.
@@ -9,5 +11,6 @@ def save_order_to_db(order_data: OrderRequest) -> bool:
     """
     import time
     time.sleep(2)
-    print(f"Order saved to DB: {order_data.model_dump()}")
-    return True
+    id =  uuid4()
+    print(f"Order {id} saved to DB: {order_data.model_dump()}")
+    return id
