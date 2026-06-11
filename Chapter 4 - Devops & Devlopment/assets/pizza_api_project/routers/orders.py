@@ -6,7 +6,7 @@ from orders.order_manager import OrderManager
 from orders.order_request import OrderRequest
 
 router = APIRouter(prefix="/orders")
-oreder_manager = OrderManager()
+order_manager = OrderManager()
 
 
 @router.post("/")
@@ -18,5 +18,5 @@ def create_order(order: OrderRequest):
     3. Return a success message with the total price and an order ID.
     4. Handle cases where the pizza list is empty (raise 400 exception).
     """
-    return oreder_manager.manage_order(order=order, menu=default_menu)
+    return order_manager.manage_order(order=order, menu=default_menu)
         

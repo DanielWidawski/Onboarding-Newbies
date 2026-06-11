@@ -3,6 +3,7 @@ import unittest
 from fastapi.testclient import TestClient
 
 from unittest.mock import patch
+from db_handler.database_orm import save_order_to_db
 from exceptions.exceptions import ValidationError
 from main import app
 from orders.order_request import OrderRequest
@@ -12,6 +13,8 @@ client = TestClient(app)
 
 
 class TestAPI(unittest.TestCase):
+    test_order = {"customer_name": "test", "item_names": ["Margherita"]}
+
     def test_get_menu(self):
         response = client.get("/menu")
         assert response.status_code == 200
@@ -22,16 +25,17 @@ class TestAPI(unittest.TestCase):
     # TODO: WRITE TESTS FOR THE POST ENDPOINT
     # ==========================================
 
-    # Example of what is needed:
-    @patch('db_handler.database_orm.save_order_to_db', return_value=True)
-    def test_create_order_success(self, mock_save_db):
-        # 1. Arrange: setup mock return value and payload
-        # 2. Act: send POST request to /orders
-        # 3. Assert: check status code, response data, and that mock was called
+    @patch("routers.orders.OrderManager.save_order")
+    def test_create_order_success(self, mock_save_to_db):
+        mock_save_to_db.return_value = "12345"
         test_order = {"customer_name": "test", "item_names": ["Margherita"]}
-        response = client.post('/orders', json=test_order)
-        assert response.status_code == 300
+        expected_result = {"order_id": "12345", "total_price": 10.0}
         
+        response = client.post("/orders/", json=test_order)
+        
+        self.assertEqual(response.json(), expected_result)
+        self.assertEqual(response.status_code, 200)
+        self.assertTrue(mock_save_to_db.called)
 
     def test_create_order_empty_list(self):
         """TODO: Test that sending an order with no pizzas returns a 400 error."""
