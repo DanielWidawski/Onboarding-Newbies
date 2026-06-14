@@ -68,8 +68,9 @@ Day 1 – Docker Core Concepts
 
 משאבים מוקצים לcontainer.
 
-2. מה הIP של השרת DNS שקונטיינרים מתקשרים דרכו ?
+2. \* מה הIP של השרת DNS שקונטיינרים מתקשרים דרכו ?
 
+127.0.0.11 ?
 
 3. מה זה docker internal ?
 
@@ -128,11 +129,18 @@ healthcheck נותן אופציה לוודא שיש גם פונקציונליו�
 
 14. מה זה kaniko ומה מחליף אותו ?
 
+זה כלי לבניית containers מdockerfile בלי הצורך בהרשאות חזקות מדי.
+ובפרט בלי צורך בdocker daemon.
+שימושי למשל בCI/CD או בניית containers בK8S.
 
+המחליף שלו הוא buildkit היתרון הראשי שלו הוא שהוא מתוחזק.
+בנוסף, הוא הרבה יותר מהיר על ידי בנייה של images באמצעות DAG מה שמאשפר הרצה במקביל.
+הוא לא דורש גישת root ובונה תמונות קטנות יותר.
 
 15. מה זה multi stage build ?
 
 זה בגדול docker file עם כמה FROM 
+היתרון הוא שבכל שלב לוקחים רק את הקבצים הרלוונטים, מה שמוביל לתמונה יותר קטנה ופוטנציאלית פחות מקומות לשגיאות אבטחה.
 
 16. למה משמש docker in docker ?
 
@@ -165,6 +173,9 @@ healthcheck נותן אופציה לוודא שיש גם פונקציונליו�
 מוסיפים --user root
 
 23. env vs args
+
+ההבדל הוא שARG זמין רק בbuild time ואילו ENV זמין גם בrun time.
+
 24. docker start vs docker run ?
 
 run = create + start
@@ -173,7 +184,8 @@ run = create + start
 
 25. docker swarm
 
-
+כלי orchestration לcontainers על גבי כמה hosts.
+זה native לdocker, ומאפשר לפרוס אפליקציות תחת docker בסקייל, תחת load balancer, fault tolerance ועוד פיצ'רים.
 
 26. docker ignore
 
