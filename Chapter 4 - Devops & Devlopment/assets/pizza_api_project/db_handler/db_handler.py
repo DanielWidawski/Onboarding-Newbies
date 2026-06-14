@@ -4,7 +4,7 @@ from uuid import UUID
 from orders.order_request import OrderRequest
 
 
-class BackendStore(ABC):
+class DbHandler(ABC):
     @abstractmethod
     def save_order(self, order: OrderRequest) -> UUID:
         pass

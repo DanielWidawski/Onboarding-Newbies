@@ -5,7 +5,6 @@ from pydantic import BaseModel, InstanceOf
 from models.items import Item
 
 
-
 class Menu(ABC):
     @abstractmethod
     def add_item(self, item: Item):
@@ -22,7 +21,8 @@ class Menu(ABC):
     @abstractmethod
     def get_item_by_name(self, item_name: str) -> Item:
         pass
-    
+
+
 class DictMenu(Menu, BaseModel):
     menu: dict[str, InstanceOf[Item]] = dict()
 
@@ -36,6 +36,7 @@ class DictMenu(Menu, BaseModel):
     def is_item_included(self, item_name: str) -> bool:
         if item_name in self.menu:
             return True
+        
         return False
 
     def get_item_by_name(self, item_name: str) -> Item:

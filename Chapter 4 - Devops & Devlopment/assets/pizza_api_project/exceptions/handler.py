@@ -16,6 +16,6 @@ def register_exception_handlers(app: FastAPI):
                 "code": exc.code,
                 "timestamp": datetime.now().isoformat(),
                 "path": str(request.url.path),
-                "details": exc.details
-            }
+                "details": exc.details,
+            },
         )

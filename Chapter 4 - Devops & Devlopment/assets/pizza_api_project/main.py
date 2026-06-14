@@ -10,9 +10,11 @@ app.include_router(menu.router)
 
 register_exception_handlers(app)
 
+
 @app.get("/")
 def root():
     return {"message": "Welcome to the Pizza API"}
+
 
 if __name__ == "__main__":
     uvicorn.run(app, host="0.0.0.0", port=8000)

@@ -24,23 +24,23 @@ class TestAPI(unittest.TestCase):
     # TODO: WRITE TESTS FOR THE POST ENDPOINT
     # ==========================================
 
-    @patch("routers.orders.OrderManager.backend_store.save_order")
+    @patch("routers.orders.OrderManager.db_handler.save_order")
     def test_create_order_success(self, mock_save_to_db):
         mock_save_to_db.return_value = "12345"
         test_order = {"customer_name": "test", "item_names": ["Margherita"]}
         expected_result = {"order_id": "12345", "total_price": 10.0}
-        
+
         response = client.post("/orders/", json=test_order)
-        
+
         self.assertEqual(response.json(), expected_result)
         self.assertEqual(response.status_code, 200)
         self.assertTrue(mock_save_to_db.called)
 
     def test_create_order_empty_list(self):
-        """TODO: Test that sending an order with no pizzas returns a 400 error."""
         test_order = {"customer_name": "test", "item_names": []}
         with self.assertRaises(ValidationError) as cm:
             create_order(OrderRequest(**test_order))
+            
         self.assertEqual(cm.exception.status_code, 400)
 
 
