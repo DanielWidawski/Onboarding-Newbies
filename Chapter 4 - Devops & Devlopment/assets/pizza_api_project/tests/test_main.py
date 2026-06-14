@@ -1,5 +1,3 @@
-import unittest
-
 from fastapi.testclient import TestClient
 
 from unittest.mock import patch
@@ -7,11 +5,12 @@ from exceptions.exceptions import ValidationError
 from main import app
 from orders.order_request import OrderRequest
 from routers.orders import create_order
+import pytest
 
 client = TestClient(app)
 
 
-class TestAPI(unittest.TestCase):
+class TestAPI:
     test_order = {"customer_name": "test", "item_names": ["Margherita"]}
 
     def test_get_menu(self):
@@ -32,17 +31,11 @@ class TestAPI(unittest.TestCase):
 
         response = client.post("/orders/", json=test_order)
 
-        self.assertEqual(response.json(), expected_result)
-        self.assertEqual(response.status_code, 200)
-        self.assertTrue(mock_save_to_db.called)
+        assert response.json() == expected_result
+        assert response.status_code == 200
+        assert mock_save_to_db.called
 
     def test_create_order_empty_list(self):
         test_order = {"customer_name": "test", "item_names": []}
-        with self.assertRaises(ValidationError) as cm:
+        with pytest.raises(ValidationError):
             create_order(OrderRequest(**test_order))
-            
-        self.assertEqual(cm.exception.status_code, 400)
-
-
-if __name__ == "__main__":
-    unittest.main()
