@@ -34,7 +34,6 @@ class DictMenu(Menu, BaseModel):
         self.menu.pop(item.name)
 
     def is_item_included(self, item_name: str) -> bool:
-        print(self.menu)
         if item_name in self.menu:
             return True
         return False
