@@ -36,6 +36,5 @@ class DictMenu(Menu):
     def is_item_included(self, name: str) -> bool:
         return name in self.menu
 
-
     def get_item_by_name(self, name: str) -> Item:
         return self.menu[name]

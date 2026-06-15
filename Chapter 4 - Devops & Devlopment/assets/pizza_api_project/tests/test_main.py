@@ -13,7 +13,6 @@ client = TestClient(app)
 
 
 class TestAPI:
-
     def test_get_menu(self) -> None:
         # Act
         response = client.get("/menu")

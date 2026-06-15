@@ -7,7 +7,8 @@ from exceptions.exceptions import ValidationError
 
 
 async def validation_error_handler(
-    request: Request, exc: ValidationError) -> JSONResponse:
+    request: Request, exc: ValidationError,
+    ) -> JSONResponse:
     return JSONResponse(
         status_code=exc.status_code,
         content={

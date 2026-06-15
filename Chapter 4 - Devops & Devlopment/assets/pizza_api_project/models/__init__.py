@@ -1,5 +1,5 @@
-from models.items import PizzaMargherita, PizzaPepperoni, PizzaVegan
 from models.menu import DictMenu, Menu
+from models.pizza_items import PizzaMargherita, PizzaPepperoni, PizzaVegan
 
 default_menu: Menu = DictMenu()
 default_menu.add_item(PizzaMargherita())

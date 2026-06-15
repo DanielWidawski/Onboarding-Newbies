@@ -15,6 +15,3 @@ def init_api_app() -> FastAPI:
     app.include_router(root.router)
 
     return app
-
-
-
