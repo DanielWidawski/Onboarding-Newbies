@@ -23,7 +23,7 @@ class OrderRequest(BaseModel):
         for item in items:
             if not default_menu.is_item_included(item):
                 raise ValidationError(f"Item {item} does not appear on menu")
-            
+
         return items
 
     @computed_field
@@ -33,5 +33,5 @@ class OrderRequest(BaseModel):
         for item_name in self.item_names:
             if default_menu.get_item_by_name(item_name):
                 items.append(default_menu.get_item_by_name(item_name))
-                
+
         return items

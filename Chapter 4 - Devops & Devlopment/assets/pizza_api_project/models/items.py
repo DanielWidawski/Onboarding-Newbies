@@ -5,12 +5,6 @@ class Item(BaseModel):
     name: str
     price: float
 
-    def __hash__(self):
-        return hash(self.name)
-
-    def __eq__(self, other):
-        return self.name == other.name
-
 
 class PizzaMargherita(Item):
     def __init__(self):

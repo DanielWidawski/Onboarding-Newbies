@@ -2,11 +2,6 @@ from typing import Any, Dict, Optional
 
 
 class BaseAppException(Exception):
-    """
-    Base class for all application exceptions.
-    Extend this for specific error types.
-    """
-
     def __init__(
         self,
         message: str,
@@ -22,8 +17,6 @@ class BaseAppException(Exception):
 
 
 class ValidationError(BaseAppException):
-    """App logic validation failed"""
-
     def __init__(self, message: str, field: str | None = None):
         super().__init__(
             message=message,
