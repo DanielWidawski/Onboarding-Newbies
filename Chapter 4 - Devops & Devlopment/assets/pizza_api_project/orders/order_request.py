@@ -1,9 +1,8 @@
 from pydantic import BaseModel, Field, computed_field, field_validator
 
-
+from exceptions.exceptions import ValidationError
 from models import default_menu
 from models.items import Item
-from exceptions.exceptions import ValidationError
 
 
 class OrderRequest(BaseModel):
@@ -29,9 +28,9 @@ class OrderRequest(BaseModel):
     @computed_field
     @property
     def items(self) -> list[Item]:
-        items: list[Item] = list()
-        for item_name in self.item_names:
-            if default_menu.get_item_by_name(item_name):
-                items.append(default_menu.get_item_by_name(item_name))
 
-        return items
+        return [
+            default_menu.get_item_by_name(item_name)
+            for item_name in self.item_names
+            if default_menu.is_item_included(item_name)
+        ]

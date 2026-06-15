@@ -1,18 +1,19 @@
-from fastapi import FastAPI
 import uvicorn
-from exceptions.handler import register_exception_handlers
-from routers import orders, menu
+from fastapi import FastAPI
+
+from exceptions.handler import register_exception_handler
+from routers import menu, orders
 
 app = FastAPI(title="Pizza Delivery API")
 
 app.include_router(orders.router)
 app.include_router(menu.router)
 
-register_exception_handlers(app)
+register_exception_handler(app)
 
 
 @app.get("/")
-def root():
+def root() -> dict[str, str]:
     return {"message": "Welcome to the Pizza API"}
 
 

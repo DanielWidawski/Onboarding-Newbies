@@ -3,12 +3,14 @@ from datetime import datetime
 from fastapi import FastAPI, Request
 from fastapi.responses import JSONResponse
 
-from exceptions.exceptions import BaseAppException
+from exceptions.exceptions import BaseAppError
 
 
-def register_exception_handlers(app: FastAPI):
-    @app.exception_handler(BaseAppException)
-    async def app_exception_handler(request: Request, exc: BaseAppException):
+def register_exception_handler(app: FastAPI) -> None:
+    @app.exception_handler(BaseAppError)
+    async def app_exception_handler(
+        request: Request, exc: BaseAppError,
+    ) -> JSONResponse:
         return JSONResponse(
             status_code=exc.status_code,
             content={

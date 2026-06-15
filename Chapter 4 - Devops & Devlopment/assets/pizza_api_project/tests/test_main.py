@@ -1,11 +1,12 @@
+from unittest.mock import patch
+
+import pytest
 from fastapi.testclient import TestClient
 
-from unittest.mock import patch
 from exceptions.exceptions import ValidationError
 from main import app
 from orders.order_request import OrderRequest
 from routers.orders import create_order
-import pytest
 
 # Arrange
 client = TestClient(app)
@@ -13,7 +14,7 @@ client = TestClient(app)
 
 class TestAPI:
 
-    def test_get_menu(self):
+    def test_get_menu(self) -> None:
         # Act
         response = client.get("/menu")
         # Assert
@@ -23,7 +24,7 @@ class TestAPI:
 
     # Arrange
     @patch("routers.orders.OrderManager.db_handler.save_order")
-    def test_create_order_success(self, mock_save_to_db):
+    def test_create_order_success(self, mock_save_to_db) -> None:
         mock_save_to_db.return_value = "12345"
         test_order = {"customer_name": "test", "item_names": ["Margherita"]}
         expected_result = {"order_id": "12345", "total_price": 10.0}
@@ -36,7 +37,7 @@ class TestAPI:
         assert response.status_code == 200
         assert mock_save_to_db.called
 
-    def test_create_order_empty_list(self):
+    def test_create_order_empty_list(self) -> None:
         # Arrange
         test_order = {"customer_name": "test", "item_names": []}
         # Act + Assert

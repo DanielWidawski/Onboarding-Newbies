@@ -1,14 +1,14 @@
-from typing import Any, Dict, Optional
+from typing import Any
 
 
-class BaseAppException(Exception):
+class BaseAppError(Exception):
     def __init__(
         self,
         message: str,
         code: str,
-        status_code: int = 500,
-        details: Optional[Dict[str, Any]] = None,
-    ):
+        status_code: int,
+        details: dict[str, Any] | None = None,
+    ) -> None:
         self.message = message
         self.code = code
         self.status_code = status_code
@@ -16,8 +16,8 @@ class BaseAppException(Exception):
         super().__init__(self.message)
 
 
-class ValidationError(BaseAppException):
-    def __init__(self, message: str, field: str | None = None):
+class ValidationError(BaseAppError):
+    def __init__(self, message: str, field: str | None = None) -> None:
         super().__init__(
             message=message,
             code="VALIDATION_FAILED",
