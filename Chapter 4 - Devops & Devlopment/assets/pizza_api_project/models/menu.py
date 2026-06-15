@@ -22,6 +22,10 @@ class Menu(ABC, BaseModel):
     def get_item_by_name(self, name: str) -> Item:
         pass
 
+    @abstractmethod
+    def get_all_options(self) -> list[str]:
+        pass
+
 
 class DictMenu(Menu):
     menu: dict[str, InstanceOf[Item]] = {}
@@ -38,3 +42,6 @@ class DictMenu(Menu):
 
     def get_item_by_name(self, name: str) -> Item:
         return self.menu[name]
+
+    def get_all_options(self) -> list[str]:
+        return [*self.menu]
