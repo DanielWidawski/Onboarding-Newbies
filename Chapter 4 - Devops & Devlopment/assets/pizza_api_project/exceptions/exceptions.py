@@ -1,5 +1,7 @@
 from typing import Any
 
+from fastapi import status
+
 
 class ValidationError(Exception):
     def __init__(
@@ -20,17 +22,17 @@ class EmptyListError(ValidationError):
     def __init__(self, list_name: str | None = None) -> None:
         super().__init__(
             message=f"List {list_name} can not be empty",
-            status_code=400,
+            status_code=status.HTTP_400_BAD_REQUEST,
             code="EMPTY_LIST_ERROR",
             details={"empty_list": list_name} if list_name else {},
         )
 
 
-class NotFoundError(ValidationError):
-    def __init__(self, resource: str) -> None:
+class ItemNotFoundError(ValidationError):
+    def __init__(self, item_name: str) -> None:
         super().__init__(
-            message=f"{resource} not found",
-            code="RESOURCE_NOT_FOUND",
-            status_code=404,
-            details={"resource": resource},
+            message=f"{item_name} not found",
+            code="ITEM_NOT_FOUND",
+            status_code=status.HTTP_404_NOT_FOUND,
+            details={"resource": item_name},
         )

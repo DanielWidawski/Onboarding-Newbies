@@ -1,6 +1,6 @@
 from pydantic import BaseModel, Field, computed_field, field_validator
 
-from exceptions.exceptions import EmptyListError, NotFoundError
+from exceptions.exceptions import EmptyListError, ItemNotFoundError
 from models import default_menu
 from models.items import Item
 
@@ -19,17 +19,16 @@ class OrderRequest(BaseModel):
 
     @field_validator("item_names", mode="after")
     @classmethod
-    def is_in_menu(cls, items: list[str]) -> list[str]:
-        for item in items:
-            if not default_menu.is_item_included(item):
-                raise NotFoundError(resource=item)
+    def is_in_menu(cls, item_names: list[str]) -> list[str]:
+        for item_name in item_names:
+            if not default_menu.is_item_included(item_name):
+                raise ItemNotFoundError(item_name=item_name)
 
-        return items
+        return item_names
 
     @computed_field
     @property
     def items(self) -> list[Item]:
-
         return [
             default_menu.get_item_by_name(item_name)
             for item_name in self.item_names
