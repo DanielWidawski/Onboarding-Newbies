@@ -31,7 +31,7 @@ class EmptyListError(ValidationError):
 class ItemNotFoundError(ValidationError):
     def __init__(self, item_name: str) -> None:
         super().__init__(
-            message=f"{item_name} not found",
+            message=f"item {item_name} not found",
             code="ITEM_NOT_FOUND",
             status_code=status.HTTP_404_NOT_FOUND,
             details={"resource": item_name},
