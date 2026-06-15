@@ -1,6 +1,7 @@
-from unittest.mock import patch
+from unittest.mock import MagicMock, patch
 
 import pytest
+from fastapi import status
 from fastapi.testclient import TestClient
 
 from exceptions.exceptions import ValidationError
@@ -17,13 +18,13 @@ class TestAPI:
         # Act
         response = client.get("/menu")
         # Assert
-        assert response.status_code == 200
+        assert response.status_code == status.HTTP_200_OK
         assert len(response.json()) == 1
         assert response.json()["menu"]["Pepperoni"]["name"] == "Pepperoni"
 
     # Arrange
     @patch("routers.orders.OrderManager.db_handler.save_order")
-    def test_create_order_success(self, mock_save_to_db) -> None:
+    def test_create_order_success(self, mock_save_to_db: MagicMock) -> None:
         mock_save_to_db.return_value = "12345"
         test_order = {"customer_name": "test", "item_names": ["Margherita"]}
         expected_result = {"order_id": "12345", "total_price": 10.0}
@@ -33,7 +34,7 @@ class TestAPI:
 
         # Assert
         assert response.json() == expected_result
-        assert response.status_code == 200
+        assert response.status_code == status.HTTP_200_OK
         assert mock_save_to_db.called
 
     def test_create_order_empty_list(self) -> None:
