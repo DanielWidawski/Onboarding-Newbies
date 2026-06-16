@@ -16,6 +16,5 @@ async def validation_error_handler(
             "code": exc.code,
             "timestamp": datetime.now().isoformat(),
             "path": str(request.url.path),
-            "details": exc.details,
         },
     )
