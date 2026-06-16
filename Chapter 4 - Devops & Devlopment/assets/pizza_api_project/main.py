@@ -1,10 +1,7 @@
-from fastapi import FastAPI
-from routers import orders
+import uvicorn
 
-app = FastAPI(title="Pizza Delivery API")
+from api_init import app
+from config.settings import settings
 
-app.include_router(orders.router)
-
-@app.get("/")
-def root():
-    return {"message": "Welcome to the Pizza API"}
+if __name__ == "__main__":
+    uvicorn.run(app, host=settings.app.host, port=settings.app.port)
