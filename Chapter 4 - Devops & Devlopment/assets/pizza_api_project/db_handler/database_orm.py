@@ -13,6 +13,9 @@ class OrmDbBackend(DbHandler):
         """
 
         time.sleep(2)
+        # It is the only one that is random,
+        # which is good for order id
+        # because we dont want users to be able to guess their id.
         gen_id = uuid4()
         print(f"Order {gen_id} saved to DB: {order.model_dump()}")
 
