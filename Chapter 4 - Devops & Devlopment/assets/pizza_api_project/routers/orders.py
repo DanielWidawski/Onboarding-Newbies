@@ -1,4 +1,4 @@
-from typing import Any
+from uuid import UUID
 
 from fastapi import APIRouter
 
@@ -10,5 +10,5 @@ order_manager = OrderManager()
 
 
 @router.post("/")
-def create_order(order: OrderRequest) -> dict[str, Any]:
+def create_order(order: OrderRequest) -> dict[str, float | UUID]:
     return order_manager.manage_order(order=order)
