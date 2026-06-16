@@ -1,10 +1,7 @@
 import uvicorn
 
-from api_init.fastapi_init import init_api_app
-from settings.api_settings import get_config
-
-app = init_api_app()
-config = get_config()
+from api_init import app
+from config.settings import settings
 
 if __name__ == "__main__":
-    uvicorn.run(app, host=config.host, port=config.port)
+    uvicorn.run(app, host=settings.app.host, port=settings.app.port)
