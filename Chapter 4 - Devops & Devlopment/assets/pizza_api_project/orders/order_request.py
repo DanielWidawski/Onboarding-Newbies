@@ -1,8 +1,6 @@
-
-
 from typing import Self
 
-from pydantic import BaseModel, Field, computed_field, field_validator
+from pydantic import BaseModel, computed_field, field_validator
 
 from exceptions.exceptions import EmptyListError, ItemNotFoundError
 from models import default_menu
@@ -10,7 +8,7 @@ from models.items import Item
 
 
 class OrderRequest(BaseModel):
-    customer_name: str = Field(frozen=True)
+    customer_name: str
     item_names: list[str]
 
     @field_validator("item_names", mode="after")
