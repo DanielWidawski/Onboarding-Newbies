@@ -1,9 +1,11 @@
+from typing import Self
+
 from fastapi import status
 
 
 class ValidationError(Exception):
     def __init__(
-        self,
+        self: Self,
         message: str,
         status_code: int,
         code: str,
@@ -15,7 +17,7 @@ class ValidationError(Exception):
 
 
 class EmptyListError(ValidationError):
-    def __init__(self, list_name: str | None = None) -> None:
+    def __init__(self: Self, list_name: str | None = None) -> None:
         super().__init__(
             message=f"List {list_name} can not be empty",
             status_code=status.HTTP_400_BAD_REQUEST,
@@ -24,7 +26,7 @@ class EmptyListError(ValidationError):
 
 
 class ItemNotFoundError(ValidationError):
-    def __init__(self, item_name: str) -> None:
+    def __init__(self: Self, item_name: str) -> None:
         super().__init__(
             message=f"item {item_name} not found",
             code="ITEM_NOT_FOUND",

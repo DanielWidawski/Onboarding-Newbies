@@ -1,3 +1,4 @@
+from typing import Self
 from unittest.mock import MagicMock, patch
 
 import pytest
@@ -17,7 +18,7 @@ client = TestClient(app)
 
 
 class TestAPI:
-    def test_get_menu(self) -> None:
+    def test_get_menu(self: Self) -> None:
         # Act
         response = client.get("/menu")
         # Assert
@@ -34,7 +35,7 @@ class TestAPI:
         ),
     )
     def test_create_order_success(
-        self,
+        self: Self,
         mock_save_to_db: MagicMock,
         item_names: list[str],
     ) -> None:
@@ -60,7 +61,7 @@ class TestAPI:
         assert response.status_code == status.HTTP_200_OK
         assert mock_save_to_db.called
 
-    def test_create_order_empty_list(self) -> None:
+    def test_create_order_empty_list(self: Self) -> None:
         # Arrange
         test_order = {"customer_name": "test", "item_names": []}
         # Act + Assert
