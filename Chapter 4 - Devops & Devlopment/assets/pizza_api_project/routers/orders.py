@@ -1,5 +1,3 @@
-from uuid import UUID
-
 from fastapi import APIRouter
 
 from orders.order_manager import OrderManager
@@ -10,5 +8,5 @@ order_manager = OrderManager()
 
 
 @router.post("/")
-def create_order(order: OrderRequest) -> dict[str, float | UUID]:
+def create_order(order: OrderRequest) -> dict[str, float | str]:
     return order_manager.manage_order(order=order)
