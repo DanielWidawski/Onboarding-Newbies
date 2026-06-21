@@ -109,7 +109,7 @@ https://kubernetes.io/docs/concepts/architecture/garbage-collection/
 
 11. מה הphase של pod שמורידים אותו תשתיתית בכוח
 
-אני מניח שהכוונה היא לterminating למרות שזה לא phase אלא state.
+אני מניח שהכוונה היא לterminating למרות שזה יכול להיות גם evicted.
 
 12. מה זה probe
 
